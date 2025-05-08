@@ -135,6 +135,20 @@ function getSerialNumber(): string
     }
 
     // Para Linux
+    /*elseif (strtoupper(substr(PHP_OS, 0, 6)) === 'LINUX') {
+        // Esto es solo para pruebas
+        $output = shell_exec('sudo /usr/sbin/dmidecode -t system | grep Serial');
+
+        if ($output) {
+            preg_match('/Serial Number:\s*([a-zA-Z0-9]+)/', $output, $matches);
+            $serial = isset($matches[1]) ? trim($matches[1]) : null;
+        } else {
+            $serial = null;
+        }
+        return trim($serial);
+    }*/
+
+    // Para Linux
     elseif (strtoupper(substr(PHP_OS, 0, 6)) === 'LINUX') {
         $output = "ID: C1 06 08 00 FF FB EB BF";  // solo para probar  ***********!!!!!!!!!!!!!!!!!!!!!!!!!!!!*************************
         // shell_exec('sudo /usr/sbin/dmidecode -t 4 | grep ID');
@@ -285,7 +299,8 @@ function desconectMachines()
 }
 
 /*OBTER IP */
-function getRealIpAddr() {
+function getRealIpAddr()
+{
     if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
         $ip = $_SERVER['HTTP_CLIENT_IP'];
     } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {

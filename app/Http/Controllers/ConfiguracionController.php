@@ -157,7 +157,7 @@ class ConfiguracionController extends Controller
             ]);
 
             $serialNumberProcessor = getSerialNumber();
-
+            Log::notice($serialNumberProcessor);
             // Comprobar serial Number
             $checkSerialNumber = compartirSerialNumber($serialNumberProcessor, $data['locales']);
 
