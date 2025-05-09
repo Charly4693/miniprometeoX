@@ -2,12 +2,13 @@
 
 namespace App\Jobs;
 
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class MoneySynchronizationAuxMoneyStorageJob implements ShouldQueue
 {
@@ -27,7 +28,12 @@ class MoneySynchronizationAuxMoneyStorageJob implements ShouldQueue
      */
     public function handle(): void
     {
-
-        Artisan::call('miniprometeo:sync-money-auxmoneystorage');
+        try {
+            // Ejecutar el comando Artisan
+            Artisan::call('miniprometeo:sync-money-auxmoneystorage');
+        } catch (\Exception $e) {
+            // Registrar el error en los logs
+            Log::error('Error ejecutando miniprometeo:sync-money-auxmoneystorage: ' . $e->getMessage());
+        }
     }
 }

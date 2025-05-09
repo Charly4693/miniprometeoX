@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\ObtenerDatosTablaAcumulados;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -24,6 +25,9 @@ Schedule::job(new MoneySynchronizationJob) -> everyThirtySeconds();
 
 // se debe ejecutar al principio "la 1ª vez y luego EveryTime" y cada vez que se cambien las auxiliares
 Schedule::job(new MoneySynchronizationAuxMoneyStorageJob) -> everyThirtySeconds();
+
+// se ejecuta cada 10 segundos
+Schedule::job(new ObtenerDatosTablaAcumulados) -> everyTenMinutes();
 
 // se debe ejecutar cada 30 seg
 Schedule::job(new MoneySynchronizationEveryTimeJob) -> everyThirtySeconds();

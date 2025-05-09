@@ -150,18 +150,20 @@ function getSerialNumber(): string
 
     // Para Linux
     elseif (strtoupper(substr(PHP_OS, 0, 6)) === 'LINUX') {
-        $output = "ID: C1 06 08 00 FF FB EB BF";  // solo para probar  ***********!!!!!!!!!!!!!!!!!!!!!!!!!!!!*************************
-        // shell_exec('sudo /usr/sbin/dmidecode -t 4 | grep ID');
+        // Usamos el comando más fiable
+        $serial = shell_exec('sudo dmidecode -s system-serial-number');
 
-        if ($output) {
-            preg_match('/ID:\s*([a-fA-F0-9\s]+)/', $output, $matches);
-            $serial = isset($matches[1]) ? trim($matches[1]) : null;
-        } else {
-            $serial = null;
+        if ($serial) {
+            $serial = trim($serial);
+            //Log::notice("Serial Linux: $serial");
+            return $serial;
         }
-        return trim($serial);
+
+        //Log::warning("No se pudo obtener el serial en Linux");
+        return '';
     }
 
+    //Log::notice("SO no compatible con la obtención del serial.");
     return ''; // Si el SO no es Windows ni Linux, retorna una cadena vacía
 }
 

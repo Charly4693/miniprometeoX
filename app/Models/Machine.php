@@ -11,7 +11,7 @@ class Machine extends Model
 
     protected $fillable = [
         'id',
-        'nombre',
+        'name',
         'year',
         'serie',
         'local_id',

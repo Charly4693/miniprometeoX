@@ -118,7 +118,7 @@ class ImportController extends Controller
 
             // Eliminar máquinas que no están en Prometeo
             Machine::whereNotIn('identificador', $machines_prometeo_ids)->delete();
-
+            //dd($machines_prometeo);
             // Insertar o actualizar máquinas de Prometeo
             foreach ($machines_prometeo as $machine) {
 

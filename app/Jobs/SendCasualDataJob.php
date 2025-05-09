@@ -2,9 +2,10 @@
 
 namespace App\Jobs;
 
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 
 class SendCasualDataJob implements ShouldQueue
@@ -24,6 +25,12 @@ class SendCasualDataJob implements ShouldQueue
      */
     public function handle(): void
     {
-        //Artisan::call('miniprometeo:send-casual-data-command');
+        try {
+            // Ejecutar el comando Artisan
+            //Artisan::call('miniprometeo:send-casual-data-command');
+        } catch (\Exception $e) {
+            // Registrar el error en los logs
+            Log::error('Error ejecutando miniprometeo:send-casual-data-command: ' . $e->getMessage());
+        }
     }
 }

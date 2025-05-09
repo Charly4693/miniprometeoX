@@ -58,6 +58,7 @@ Route::resource('/configurationMoney', ConfigMoneyController::class);
 Route::get('/sync-auxiliares', [ConfigMoneyController::class, 'syncAuxiliares'])->name('sync.auxiliares');
 Route::get('/sync-config', [ConfigMoneyController::class, 'syncConfig'])->name('sync.config');
 Route::get('/sync-hcinfo', [ConfigMoneyController::class, 'syncHcInfo'])->name('sync.hcinfo');
+Route::get('/sync-acumulados', [ConfigMoneyController::class, 'syncAcumulados'])->name('sync.acumulados');
 
 // configuraciones ComData
 Route::resource('/configurationAccountants', ConfigurationAccountantsController::class);
