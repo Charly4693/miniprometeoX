@@ -2,9 +2,10 @@
 
 namespace App\Jobs;
 
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class TestConexionaes implements ShouldQueue
 {
@@ -25,9 +26,12 @@ class TestConexionaes implements ShouldQueue
      */
     public function handle(): void
     {
-
-        Artisan::call('check-synchronization-servidores');
+        try {
+            // Ejecutar el comando Artisan
+            Artisan::call('check-synchronization-servidores');
+        } catch (\Exception $e) {
+            // Registrar el error en los logs
+            Log::error('Error ejecutando check-synchronization-servidores: ' . $e->getMessage());
+        }
     }
-
-
 }

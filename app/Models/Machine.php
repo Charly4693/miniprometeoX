@@ -47,9 +47,9 @@ class Machine extends Model
         return $this->belongsTo(Delegation::class);
     }
 
-    public function loads()
+    public function typeAlias()
     {
-        return $this->hasMany(Load::class);
+        return $this->hasMany(TypeAlias::class);
     }
 
     public function auxiliars()
@@ -168,6 +168,19 @@ class Machine extends Model
         }
 
         return $orderedMachines;
+    }
+
+    public static function getOnlyChildren($id){
+
+        $machinesChildren = self::where('local_id', $id)
+            ->where(function ($query) {
+                $query->whereNotIn('type', ['roulette', 'parent']) // Excluir 'roulette' y 'parent'
+                    ->orWhereHas('parent', function ($q) {
+                        $q->whereIn('type', ['roulette', 'parent']); // Incluir hijos de estos tipos
+                    });
+            })
+            ->get();
+        return $machinesChildren;
     }
 
     public function acumulado()

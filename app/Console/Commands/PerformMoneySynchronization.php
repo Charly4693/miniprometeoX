@@ -53,7 +53,7 @@ class PerformMoneySynchronization extends Command
             DB::connection($connectionName)->getPdo();
 
             // fecha para logs y tickets
-            $fechaLimite = Carbon::now()->subDays(15);
+            $fechaLimite = Carbon::now()->subDays(60);
 
             // Obtener los datos de las tablas para traer los datos
             $collects = DB::connection($connectionName)->table('collect')->where('State', 'A')->get();

@@ -2,11 +2,12 @@
 
 namespace App\Jobs;
 
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
+use function Pest\version;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Artisan;
 
-use function Pest\version;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ObtenerDatosTablaAcumulados implements ShouldQueue
 {
@@ -25,7 +26,12 @@ class ObtenerDatosTablaAcumulados implements ShouldQueue
      */
     public function handle(): void
     {
-
-        Artisan::call('perform-acumulado-synchronization');
+        try {
+            // Ejecutar el comando Artisan
+            Artisan::call('perform-acumulado-synchronization');
+        } catch (\Exception $e) {
+            // Registrar el error en los logs
+            Log::error('Error ejecutando perform-acumulado-synchronization: ' . $e->getMessage());
+        }
     }
 }

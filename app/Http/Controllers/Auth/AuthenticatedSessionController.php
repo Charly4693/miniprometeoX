@@ -29,37 +29,31 @@ class AuthenticatedSessionController extends Controller
 
     public function store(Request $request)
     {
+        // Validación de los datos de entrada
         $request->validate([
             'name' => 'required|string',
             'password' => 'required|string',
         ]);
 
-
-        // dd($request->password);
+        // Intentar autenticar al usuario
         if (Auth::attempt(['name' => $request->name, 'password' => $request->password], $request->boolean('remember'))) {
+            // Regenerar la sesión
             $request->session()->regenerate();
-            // exec('start php ' . base_path('artisan') . ' queue:work');
 
-
-
-            // Ejecutar los commands de Artisan para swervidores y acumulados mas lento y frena la app
-            //Artisan::call('check-synchronization-servidores');
-            //Artisan::call('perform-acumulado-synchronization');
-
-            // ejecutando con jobs trabajaando por detras y la app no se frena
-            // Ejecutar los Jobs en segundo plano para que no frenen el login
+            // Ejecutar los Jobs antes de redirigir al usuario
             TestConexionaes::dispatch();
             ObtenerDatosTablaAcumulados::dispatch();
 
+            // Redirigir a la página principal, después de ejecutar los Jobs
             return redirect(route('home'))->with('csrf_token', csrf_token());
         }
 
-        // dd($request);
-
+        // Si no se pudo autenticar, mostrar el error de login
         return back()->withErrors([
             'name' => __('auth.failed'),
         ]);
     }
+
 
     /**
      * Destroy an authenticated session.

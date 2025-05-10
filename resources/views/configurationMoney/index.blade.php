@@ -30,6 +30,10 @@
                     </div>
                 </div>
             </div>
+            <!-- Contenedor para los botones -->
+            <div class="d-flex justify-content-center gap-3 mt-3">
+                <a class="btn btn-secondary" href="{{ route('home') }}">Volver</a>
+            </div>
         </div>
     </div>
 

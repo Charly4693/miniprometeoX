@@ -88,6 +88,9 @@
                                         <!--pagination-->
                                     </div>
                                 </div>
+                                <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-3 mb-3 w-75 mx-auto">
+                                    <a href="{{ route('sync.acumulados') }}" class="btn btn-warning">Sync Máquinas contadores</a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -133,7 +136,18 @@
                         </div>
                     </div>
 
-
+                    <div class="mt-5 p-3 isla-list">
+                        <div class="row p-2">
+                            <div class="col-12">
+                                <a class="btn btn-primary w-100 btn-ttl">Sincronizar máquina de cambio con prometeo</a>
+                            </div>
+                            <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-3 mb-3 w-75 mx-auto">
+                                <a href="{{ route('sync.auxiliares') }}" class="btn btn-warning">Sync auxiliares</a>
+                                <a href="{{ route('sync.config') }}" class="btn btn-warning">Sync configuración</a>
+                                <a href="{{ route('sync.hcinfo') }}" class="btn btn-warning">Sync HC info...</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             @endif
         </div>

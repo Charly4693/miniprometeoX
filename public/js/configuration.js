@@ -18,13 +18,12 @@ if (buttonPedirCompany !== null) {
                 return;
             }
 
-            const company = companyResponse
-                .company; // Obtenemos datos de compania, ip y  port de servidor de Prometeo de compania
+            const company = companyResponse.company; // Obtenemos datos de compania, ip y  port de servidor de Prometeo de compania
             const ipPrometeoPropio = company.ip;
             const portPrometeoPropio = company.port;
 
             const saveCompanyResponse = await sendPostRequest(
-                '{{ route('configuration.save_company') }}', company
+                "{{ route('configuration.save_company') }}", company
             ); //guardamos a BD datos de compania: nombre, ip, puerto
 
             console.log(saveCompanyResponse.message);

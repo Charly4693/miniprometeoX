@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Jobs;
-
+use Illuminate\Support\Facades\Log;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -37,6 +37,12 @@ class MoneySynchronizationEveryTimeJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Artisan::call('miniprometeo:perform-money-synchronization-every-time');
+        try {
+            // Ejecutar el comando Artisan
+            Artisan::call('miniprometeo:perform-money-synchronization-every-time');
+        } catch (\Exception $e) {
+            // Registrar el error en los logs
+            Log::error('Error ejecutando miniprometeo:perform-money-synchronization-every-time: ' . $e->getMessage());
+        }
     }
 }

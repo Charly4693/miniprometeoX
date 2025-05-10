@@ -102,8 +102,7 @@
                         <div class="p-5 fs-1 fw-bolder text-success">Las listas de maquinas coinciden</div>
                         <div class="d-flex justify-content-around">
                             <div class="col-6">
-                                <a class="btn btn-secondary w-100 me-2"
-                                    href="{{ route('machines.index') }}">Volver</a>
+                                <a class="btn btn-secondary w-100 me-2" href="{{ route('machines.index') }}">Volver</a>
                             </div>
                         </div>
                     </div>
@@ -112,8 +111,7 @@
                         <div class="p-5 fs-1 fw-bolder text-success">{{ $message }}</div>
                         <div class="d-flex justify-content-around">
                             <div class="col-6">
-                                <a class="btn btn-secondary w-100 me-2"
-                                    href="{{ route('machines.index') }}">Volver</a>
+                                <a class="btn btn-secondary w-100 me-2" href="{{ route('machines.index') }}">Volver</a>
                             </div>
                         </div>
                     </div>
@@ -125,3 +123,5 @@
 
     </div>
 @endsection
+
+

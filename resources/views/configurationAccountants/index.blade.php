@@ -84,8 +84,8 @@
                                                 <td>{{ $machine->identificador }}</td>
                                                 <td>
                                                     <select name="numPlaca[{{ $machine->id }}]"
-                                                        class="w-100 form-control select-control"
-                                                        data-row="{{ $machine->id }}" readonly>
+                                                        class="w-100 form-control select-control  numPlaca-select"
+                                                        data-row="{{ $machine->id }}" disabled>
 
                                                         <option value="0">Seleccione placa</option>
 
@@ -96,7 +96,6 @@
                                                             </option>
                                                         @endforeach
                                                     </select>
-
                                                 </td>
                                                 <td>
                                                     <div class="form-check">
@@ -107,7 +106,8 @@
                                                         <!-- Checkbox con el mismo nombre para que sobrescriba el valor si se marca -->
                                                         <input type="checkbox" name="AnularPM[{{ $machine->id }}]"
                                                             id="AnularPM{{ $machine->id }}" value="1"
-                                                            {{ $machine->AnularPM == 1 ? 'checked' : '' }} disabled>
+                                                            {{ $machine->AnularPM == 1 ? 'checked' : '' }}
+                                                            data-row="{{ $machine->id }}" disabled>
                                                         <!-- 🔹 Añadimos "disabled" para que esté bloqueado al inicio -->
                                                     </div>
                                                 </td>
@@ -217,9 +217,7 @@
                             </table>
                         </div>
                     </div>
-                    <div class="d-flex justify-content-center">
-                        <a class="btn btn-secondary m-3" href="{{ route('home') }}">Volver</a>
-                    </div>
+
 
                 </div>
 
@@ -247,8 +245,9 @@
                     <!-- pagination -->
                 </div>
             </div>
-
-
+            <div class="d-flex justify-content-center">
+                <a class="btn btn-secondary m-3" href="{{ route('home') }}">Volver</a>
+            </div>
         </div>
     </div>
 
