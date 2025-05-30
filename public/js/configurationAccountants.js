@@ -17,10 +17,50 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let filaEnEdicion = null; // Variable para almacenar la fila que está en edición
 
-    function actualizarEstado() {
-        console.log("Actualizando estado de botones y inputs...");
 
-        const isAllChecked = radioAll?.checked;
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".select-control").forEach(select => {
+            select.addEventListener("change", function () {
+                let rowId = this.dataset.row; // Obtiene el rowId desde el atributo data-row
+                console.log("🔹 rowId obtenido:", rowId); // ✅ Verifica si rowId tiene valor
+
+                if (!rowId) {
+                    console.error("⚠️ Error: rowId no definido en select-control");
+                    return;
+                }
+
+                let checkbox = document.getElementById("AnularPM" + rowId);
+                let row = document.getElementById("row" + rowId);
+
+                console.log("📌 Elemento select actual:", this); // ✅ Muestra el select que activó el evento
+                console.log("📌 Fila encontrada:", row); // ✅ Verifica si la fila existe
+                console.log("📌 Checkbox encontrado:", checkbox); // ✅ Verifica si el checkbox existe
+
+                if (!row) {
+                    console.warn("⚠️ No se encontró la fila con ID: row" + rowId);
+                    return;
+                }
+                if (!checkbox) {
+                    console.warn("⚠️ No se encontró el checkbox con ID: AnularPM" + rowId);
+                    return;
+                }
+
+                if (row.classList.contains("edit")) {
+                    checkbox.disabled = false;
+                    return;
+                }
+
+                checkbox.disabled = this.value === "0" || this.value === "" ? true : false;
+                if (checkbox.disabled) checkbox.checked = false;
+            });
+        });
+    });
+
+
+    function actualizarEstado() {
+        console.log("🔄 Actualizando estado de botones y checkboxes...");
+
+        const isAllChecked = radioAll?.checked ?? false;
         if (saveAllBtn) saveAllBtn.disabled = !isAllChecked;
 
         aliasInputs.forEach(input => input.readOnly = !isAllChecked);
@@ -32,13 +72,77 @@ document.addEventListener("DOMContentLoaded", function () {
         volverButtons.forEach(btn => btn.disabled = isAllChecked);
         eliminarButtons.forEach(btn => btn.disabled = isAllChecked);
 
-        // Solo cambiamos el estado de los checkboxes si "All" está seleccionado
-        if (isAllChecked) {
-            checkboxes.forEach(checkbox => checkbox.disabled = false); // Se habilitan
-        } else {
-            checkboxes.forEach(checkbox => checkbox.disabled = true); // Se deshabilitan
-        }
+        checkboxes.forEach(checkbox => {
+            let rowId = checkbox.dataset.row;
+            let select = document.querySelector(`.select-control[data-row="${rowId}"]`);
+            let isRowInEditMode = filaEnEdicion && filaEnEdicion.dataset?.row === rowId;
+
+            if (!select) return;
+
+            let selectValue = parseInt(select.value, 10) || 0;
+
+            console.log(`📌 Fila: ${rowId} - Edición: ${isRowInEditMode} - Select: ${selectValue}`);
+
+            if (isRowInEditMode) {
+                console.log(`✅ Checkbox habilitado (modo edición) en fila ${rowId}`);
+                checkbox.disabled = false; // **IMPORTANTE: No se deshabilita en edición**
+            } else {
+                checkbox.disabled = !(isAllChecked && selectValue > 0);
+            }
+        });
     }
+
+
+    document.querySelectorAll('input[name="nombreRadio"]').forEach(radio => {
+        radio.addEventListener("change", function () {
+            console.log(`🎯 Cambio en radio: ${this.value}, checked: ${this.checked}`);
+        });
+    });
+
+
+
+    // ✅ Evento cuando el `select` cambia
+    selects.forEach(select => {
+        select.addEventListener("change", function () {
+            let rowId = this.dataset.row;
+            let checkbox = document.querySelector(`input[type="checkbox"][data-row="${rowId}"]`);
+
+            if (!checkbox) {
+                console.warn(`⚠️ Checkbox no encontrado para la fila ${rowId}`);
+                return;
+            }
+
+            let isRowInEditMode = filaEnEdicion && filaEnEdicion.dataset?.row === rowId;
+            let selectValue = parseInt(this.value, 10) || 0;
+            let radioAllChecked = document.querySelector('input[name="nombreRadio"]:checked')?.value === "true";
+
+            console.log("🔍 Debugging select change:");
+            console.log(`   ▶️ Fila en edición: ${isRowInEditMode}`);
+            console.log(`   ▶️ Valor del select: ${selectValue}`);
+            console.log(`   ▶️ Radio 'All' activado: ${radioAllChecked}`);
+
+            // ✅ NUEVA LÓGICA
+            if (isRowInEditMode || selectValue > 0) {
+                console.log(`✅ Habilitando checkbox para fila ${rowId}`);
+                checkbox.disabled = false;
+            } else {
+                console.log(`❌ Deshabilitando checkbox para fila ${rowId}`);
+                checkbox.disabled = true;
+            }
+        });
+    });
+
+    // ✅ Restaurar estado al guardar o volver
+    [...volverButtons, ...guardarButtons].forEach(btn => {
+        btn.addEventListener("click", () => {
+            console.log(`🔄 Restaurando estado después de acción en fila: ${filaEnEdicion?.dataset?.row}`);
+            filaEnEdicion = null; // Se limpia la fila en edición
+            actualizarEstado();
+        });
+    });
+
+    // ✅ Establecer el estado inicial correctamente
+    actualizarEstado();
 
     if (radioSingle) radioSingle.addEventListener("change", actualizarEstado);
     if (radioAll) radioAll.addEventListener("change", actualizarEstado);
@@ -122,15 +226,17 @@ document.addEventListener("DOMContentLoaded", function () {
             // Restaurar la edición de otras filas
             editButtons.forEach(btn => btn.disabled = false);
             eliminarButtons.forEach(btn => btn.disabled = false);
-            checkboxes.forEach(checkbox => checkbox.setAttribute('disabled', 'true'));
 
             // Restaurar inputs a solo lectura
             row.querySelector('.alias-input')?.setAttribute('readonly', true);
             row.querySelector('.placa-input')?.setAttribute('readonly', true);
             row.querySelector('.select-control')?.setAttribute('disabled', true);
 
-            // ✅ Deshabilitar el checkbox al cancelar edición
-            row.querySelector('input[type="checkbox"]')?.setAttribute('disabled', true);
+            // ✅ Solo deshabilitar el checkbox si NO está en edición
+            let checkbox = row.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                checkbox.disabled = true;
+            }
 
             // Ocultar los botones de guardar y volver
             row.querySelector('.guardar')?.classList.add('d-none');
@@ -139,12 +245,12 @@ document.addEventListener("DOMContentLoaded", function () {
             // Mostrar los botones de edición y eliminación
             row.querySelector('.edit')?.classList.remove('d-none');
             row.querySelector('.eliminar')?.classList.remove('d-none');
+
+            actualizarEstado(); // ✅ Volvemos a actualizar el estado global
         });
     });
 
-
     actualizarEstado();
-
 
     console.log("Estado inicial de saveAllBtn:", saveAllBtn?.disabled);
 
@@ -197,7 +303,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 let machineId = row.querySelector('input[name="machine_id"]')?.value;
                 let numPlaca = row.querySelector('select[name^="numPlaca"]')?.value;
                 let alias = row.querySelector('input[name^="alias"]')?.value;
-                let selected = row.querySelector('input[type="checkbox"]')?.checked ? 1 : 0;
+                let AnularPM = row.querySelector('input[type="checkbox"]')?.checked ? 1 : 0;
 
                 if (machineId && numPlaca && alias) {
                     if (numPlaca === "0") {
@@ -207,7 +313,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         machine_id: machineId,
                         numPlaca,
                         alias,
-                        selected
+                        AnularPM
                     });
                 }
             });

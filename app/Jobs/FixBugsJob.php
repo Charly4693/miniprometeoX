@@ -7,17 +7,19 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-
-class SendCasualDataJob implements ShouldQueue
+class FixBugsJob implements ShouldQueue
 {
     use Queueable;
 
+    protected $data;
+
     /**
      * Create a new job instance.
+     *
+     * @param array $data
      */
     public function __construct()
     {
-        //
     }
 
     /**
@@ -27,11 +29,10 @@ class SendCasualDataJob implements ShouldQueue
     {
         try {
             // Ejecutar el comando Artisan
-            Artisan::call('miniprometeo:send-casual-data-command');
-            Log::info('enviando datos casuales a prometeo');
+            Artisan::call('miniprometeo:fix-bugs-command');
         } catch (\Exception $e) {
             // Registrar el error en los logs
-            Log::error('Error ejecutando miniprometeo:send-casual-data-command: ' . $e->getMessage());
+            Log::error('Error ejecutando miniprometeo:fix-bugs-command: ' . $e->getMessage());
         }
     }
 }

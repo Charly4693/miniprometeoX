@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ConfigMoneyController;
+use App\Http\Controllers\ConfigurationTypeAliasController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PedirAyudaController;
 use App\Http\Controllers\MachineController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\ConfigurationAccountantsController;
 use App\Http\Controllers\SyncMoneyController;
+use App\Http\Controllers\TicketsController;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\CheckProcessorSerial;
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +23,7 @@ use Illuminate\Support\Facades\Auth;
 */
 
 // Breeze auth
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 // Pagina Inicio
 Route::get('/', function () {
@@ -33,7 +35,7 @@ Route::get('/', function () {
 });
 
 // Pagina home
-Route::get('/home', [HomeController::class, 'index'])->name('home') ->middleware('auth', CheckProcessorSerial::class);
+Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware('auth', CheckProcessorSerial::class);
 
 // Gestion de maquinas
 Route::get('/machines/search', [MachineController::class, 'search'])->name('machines.search');
@@ -56,11 +58,15 @@ Route::resource('/configurationMoney', ConfigMoneyController::class);
 Route::get('/sync-auxiliares', [ConfigMoneyController::class, 'syncAuxiliares'])->name('sync.auxiliares');
 Route::get('/sync-config', [ConfigMoneyController::class, 'syncConfig'])->name('sync.config');
 Route::get('/sync-hcinfo', [ConfigMoneyController::class, 'syncHcInfo'])->name('sync.hcinfo');
+Route::get('/sync-acumulados', [ConfigMoneyController::class, 'syncAcumulados'])->name('sync.acumulados');
 
 // configuraciones ComData
 Route::resource('/configurationAccountants', ConfigurationAccountantsController::class);
 Route::post('/configurationAccountants/storeAll', [ConfigurationAccountantsController::class, 'storeAll'])->name('configurationAccountants.storeAll');
 Route::post('/configurationAccountants/clearAll', [ConfigurationAccountantsController::class, 'clearAll']);
+
+// configuraciones de type/alias  para los tipos de tickets vayan asociados a una maquina con su alias en Type de tickets "Type(ticket)"="Machine(alias)"
+Route::resource('/configurationTypeAlias', ConfigurationTypeAliasController::class);
 
 // enviar las auxiliares al archivo de texto de ticketServer
 Route::post('/send-auxiliares', [MachineController::class, 'sendAuxiliares'])->name('sendAuxiliares');
@@ -75,6 +81,11 @@ Route::post('/saveClientData', [ConfiguracionController::class, 'saveClientData'
 
 Route::get('syncTypesTickets', [MachineController::class, 'syncTypesTickets'])->name('syncTypesTickets');
 
+// tickets
+Route::resource('tickets', TicketsController::class);
+Route::post('abortTicket/{local}', [TicketsController::class, 'abortTickets'])->name('abortTicket');
+Route::post('confirmTicket/{local}', [TicketsController::class, 'confirmTicket'])->name('confirmTicket');
+Route::post('generarTicket/{local}', [TicketsController::class, 'generarTicket'])->name('generarTicket');
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
@@ -115,4 +126,3 @@ Route::post('/test-connection', function (Request $request) {
 
     return response()->json(['success' => 'Conexión y acceso al archivo exitosos.']);
 });
-

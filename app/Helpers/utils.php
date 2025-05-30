@@ -22,23 +22,27 @@ define('PROMETEO_PRINCIPAL_PORT', "8000");
 
 // Funciones para manejar el estado de las conexiones
 // variable $estadoConexiones - es array con estados
-function setEstadoConexiones($estadoConexiones) {
-    Log::info ('utils:', $estadoConexiones);
+function setEstadoConexiones($estadoConexiones)
+{
+    Log::info('utils:', $estadoConexiones);
     Cache::put('conexiones', $estadoConexiones);
 }
 
-function getEstadoConexiones() {
+function getEstadoConexiones()
+{
     return Cache::get('conexiones') ?? []; // Garantiza un array, incluso si la caché es null
 }
 
 // functioes para controlar el tiempo de la ultima verificacón de conexiones
 // variable $lastTime - es tiempo de ultimo conexion
 
-function setTimeConexiones($lastTime) {
+function setTimeConexiones($lastTime)
+{
     Cache::put('lastTime', $lastTime);
 }
 
-function getTimeConexiones() {
+function getTimeConexiones()
+{
     return Cache::get('lastTime', 0); // Devuelve 0 si no existe
 }
 
@@ -78,8 +82,8 @@ function nuevaConexion($local)
 
 function nuevaConexionLocal($name)
 {
-    $user = User::where('name', $name) ->first();
-    $connectionName = 'mariadb'. '-'. $name;
+    $user = User::where('name', $name)->first();
+    $connectionName = 'mariadb' . '-' . $name;
 
     if ($name === 'admin') {
         $database = 'comdata';
@@ -102,11 +106,9 @@ function nuevaConexionLocal($name)
             'database.connections.' . $connectionName . '.driver' => 'mysql'
         ]);
 
-        $config = config ('database.connections'.$database);
-
-    }catch (\Exception $e) {
+        $config = config('database.connections' . $database);
+    } catch (\Exception $e) {
         Log::info($e);
-
     }
 
     return $connectionName;
@@ -115,7 +117,7 @@ function nuevaConexionLocal($name)
 
 // function para obtener serial numer de Procesador
 // @return serial number $serial o null
-function getSerialNumber() :string
+function getSerialNumber(): string
 {
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
         $serial = shell_exec('wmic cpu get ProcessorId');
@@ -133,149 +135,199 @@ function getSerialNumber() :string
     }
 
     // Para Linux
-    elseif (strtoupper(substr(PHP_OS, 0, 6)) === 'LINUX') {
-        $output = "ID: C1 06 08 00 FF FB EB BF";  // solo para probar  ***********!!!!!!!!!!!!!!!!!!!!!!!!!!!!*************************
-        // shell_exec('sudo /usr/sbin/dmidecode -t 4 | grep ID');
+    /*elseif (strtoupper(substr(PHP_OS, 0, 6)) === 'LINUX') {
+        // Esto es solo para pruebas
+        $output = shell_exec('sudo /usr/sbin/dmidecode -t system | grep Serial');
 
         if ($output) {
-            preg_match('/ID:\s*([a-fA-F0-9\s]+)/', $output, $matches);
+            preg_match('/Serial Number:\s*([a-zA-Z0-9]+)/', $output, $matches);
             $serial = isset($matches[1]) ? trim($matches[1]) : null;
         } else {
             $serial = null;
         }
         return trim($serial);
+    }*/
+
+    // Para Linux
+    elseif (strtoupper(substr(PHP_OS, 0, 6)) === 'LINUX') {
+        // Usamos el comando más fiable
+        $serial = shell_exec('sudo dmidecode -s system-serial-number');
+
+        if ($serial) {
+            $serial = trim($serial);
+            //Log::notice("Serial Linux: $serial");
+            return $serial;
+        }
+
+        //Log::warning("No se pudo obtener el serial en Linux");
+        return '';
     }
 
-    return null; // Si hay otro
+    //Log::notice("SO no compatible con la obtención del serial.");
+    return ''; // Si el SO no es Windows ni Linux, retorna una cadena vacía
 }
 
-    // Para obtener datos de local, zona, delegation
-    // @return array $disposision con local, zona, delegation
+// Para obtener datos de local, zona, delegation
+// @return array $disposision con local, zona, delegation
 
-    function getDisposicion () {
-        $locales = Local::all();
-        $zones=Zone::all();
-        $delegation = Delegation::all();
-        $name_zona = "";
-        $name_delegation = "";
+function getDisposicion()
+{
+    $locales = Local::all();
+    $zones = Zone::all();
+    $delegation = Delegation::all();
+    $name_zona = "";
+    $name_delegation = "";
 
-        if (count($zones) == 1) {
-            $name_zona = $zones[0] -> name;
-        }
-
-        if (count($delegation) == 1) {
-            $name_delegation = $delegation[0] ->name;
-        }
-
-        return $disposicion = [
-            'locales' => $locales,
-            'name_zona' =>  $name_zona,
-            'name_delegation' => $name_delegation
-        ];
+    if (count($zones) == 1) {
+        $name_zona = $zones[0]->name;
     }
 
-    // function para comprobar si hay Compania en BD
-    // @return nombre company $company o null
-    function getCompany () {
-        try {
-            $company = Company::first();
+    if (count($delegation) == 1) {
+        $name_delegation = $delegation[0]->name;
+    }
 
-            if ($company) return $company -> name;
-            else return null;
+    return $disposicion = [
+        'locales' => $locales,
+        'name_zona' =>  $name_zona,
+        'name_delegation' => $name_delegation
+    ];
+}
+
+// function para comprobar si hay Compania en BD
+// @return nombre company $company o null
+function getCompany()
+{
+    try {
+        $company = Company::first();
+
+        if ($company) return $company->name;
+        else return null;
+    } catch (\Exception $e) {
+        Log::info($e);
+        return null;
+    }
+}
+
+
+// function para conexion con prometeo y comprobar licencia
+// @return array [resultado de comprobación, error]
+function compartirSerialNumber($serialNumberProcessor, $local_id)
+{
+    Log::notice('Compartir serial number ' . $serialNumberProcessor . ' --- ' . $local_id);
+    try {
+
+        // Probar conexiones con prometeo
+        $urlPrometeo = User::where('name', 'prometeo')->first();
+        $company = Company::first();
+        $local = Local::find($local_id);
+        $url = 'http://' . PROMETEO_PRINCIPAL_IP . ':' . PROMETEO_PRINCIPAL_PORT . '/api/verify-licence-company';
+
+        Log::notice($local_id);
+        Log::notice($serialNumberProcessor);
+        Log::notice($company);
+        Log::notice($local);
+
+
+        try {
+            $response = Http::post($url, [
+                'local_id' => $local_id,
+                'serialNumber' => $serialNumberProcessor,
+                'company' => $company->name,
+                'local_name' => $local->name
+            ]);
+            Log::notice($response->body());
         } catch (\Exception $e) {
+
             Log::info($e);
-            return null;
         }
-    }
 
+        $result = $response->json();
 
-    // function para conexion con prometeo y comprobar licencia
-    // @return array [resultado de comprobación, error]
-    function compartirSerialNumber($serialNumberProcessor, $local_id) {
-        Log::notice('Compartir serial number ' . $serialNumberProcessor . ' --- ' . $local_id);
-        try {
+        if ($result !== null && $result['success']) {
 
-                    // Probar conexiones con prometeo
-                    $urlPrometeo = User::where('name', 'prometeo')->first();
-                    $company = Company::first();
-                    $local = Local::find($local_id);
-                    $url = 'http://'. PROMETEO_PRINCIPAL_IP . ':'. PROMETEO_PRINCIPAL_PORT .'/api/verify-licence-company';
+            return [true, null];
+        } else {
 
-                    Log::notice($local_id);
-                    Log::notice($serialNumberProcessor);
-                    Log::notice($company);
-                    Log::notice($local);
+            $error = "Serial numero de processador es incorrecto";
+            session(['localId' => $local->id, "serialNumberProcessor" => $serialNumberProcessor]);
 
-
-                    try {
-                        $response = Http::post($url, [
-                            'local_id' => $local_id,
-                            'serialNumber' => $serialNumberProcessor,
-                            'company' => $company -> name,
-                            'local_name' => $local -> name
-                        ]);
-                        Log::notice($response->body());
-
-                    } catch (\Exception $e) {
-
-                        Log::info($e);
-                    }
-
-                    $result = $response -> json();
-
-                    if ($result !== null && $result['success']) {
-
-                        return [true, null];
-                    } else {
-
-                        $error = "Serial numero de processador es incorrecto";
-                        session([ 'localId' => $local->id, "serialNumberProcessor" => $serialNumberProcessor]);
-
-                        return [false, $error];
-                    }
-
-        }catch (\Illuminate\Database\QueryException $ex) {
-            Log::info($ex);
-            $error = "No hay conexión.";
-            return [false, $error];
-        } catch (\Exception $exception) {
-            $error = "Hay algun error desconocido";
             return [false, $error];
         }
+    } catch (\Illuminate\Database\QueryException $ex) {
+        Log::info($ex);
+        $error = "No hay conexión.";
+        return [false, $error];
+    } catch (\Exception $exception) {
+        $error = "Hay algun error desconocido";
+        return [false, $error];
+    }
+}
+
+
+// function para buscar job en la tabla jobs para no repetir
+// @$isDuplicate - boolean con resultado comprobacón
+
+function buscarJob($nameJob)
+{
+
+    $jobs = Job::all();
+
+    $isDuplicate = false;
+
+    foreach ($jobs as $job) {
+        $payload = json_decode($job->payload, true);
+
+        if (isset($payload['data']['commandName']) && $payload['data']['commandName'] === $nameJob) {
+            $isDuplicate = true;
+            break;
+        }
     }
 
+    return $isDuplicate;
+}
 
-    // function para buscar job en la tabla jobs para no repetir
-    // @$isDuplicate - boolean con resultado comprobacón
+// function para desconectar todos machines en tabla acumulados cuando no hay conexiones
+// @return void
 
-    function buscarJob ($nameJob){
+function desconectMachines()
+{
 
-        $jobs = Job::all();
+    $machinesAcumulados = Acumulado::all();
+    // Desconectamos cada machine
+    foreach ($machinesAcumulados as $machine) {
 
-        $isDuplicate = false;
+        $machine->update(['EstadoMaquina' => 'DESCONECTADA']);
+    }
+}
 
-        foreach ($jobs as $job) {
-            $payload = json_decode($job -> payload, true);
-
-            if (isset($payload['data']['commandName']) && $payload['data']['commandName'] === $nameJob) {
-                $isDuplicate = true;
-                break;
-            }
-        }
-
-        return $isDuplicate;
-
+/*OBTER IP */
+function getRealIpAddr()
+{
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $ip = $_SERVER['HTTP_CLIENT_IP'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $ip = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0]; // Toma solo la primera IP en caso de múltiples proxies
+    } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
+        $ip = $_SERVER['REMOTE_ADDR'];
+    } else {
+        $ip = 'UNKNOWN';
     }
 
-    // function para desconectar todos machines en tabla acumulados cuando no hay conexiones
-    // @return void
+    // Si la IP es 127.0.0.1, intenta obtener la IP real de la red local
+    if ($ip == "127.0.0.1" || $ip == "::1") {
+        $ip = getHostByName(getHostName());
+    }
 
-    function desconectMachines () {
+    return $ip;
+}
 
-     $machinesAcumulados = Acumulado::all();
-                // Desconectamos cada machine
-                foreach ($machinesAcumulados as $machine) {
+function GenerateNewNumberFormat($NumberOfDigits)
+{
+    $number = "";
+    for ($i = 0; $i < $NumberOfDigits - 8; $i++) {
+        $num = mt_rand() % 10;
+        $number .= $num;
+    }
 
-                    $machine -> update(['EstadoMaquina'=>'DESCONECTADA']);
-                }
-        }
+    return "00000000" . $number;
+}

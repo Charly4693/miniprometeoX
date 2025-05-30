@@ -53,7 +53,7 @@ class PerformMoneySynchronization extends Command
             DB::connection($connectionName)->getPdo();
 
             // fecha para logs y tickets
-            $fechaLimite = Carbon::now()->subDays(15);
+            $fechaLimite = Carbon::now()->subDays(60);
 
             // Obtener los datos de las tablas para traer los datos
             $collects = DB::connection($connectionName)->table('collect')->where('State', 'A')->get();
@@ -224,7 +224,7 @@ class PerformMoneySynchronization extends Command
                                     'Comment' => $ticket->Comment,
                                     'Type' => $ticket->Type,
                                     'TypeIsBets' => $ticket->TypeIsBets,
-                                    'TypeIsAux' => $ticket->TypeIsAux,
+                                    'TypeIsAux' => $ticket->TypeIsAux ?? 0,
                                     'AuxConcept' => $ticket->AuxConcept,
                                     'HideOnTC' => $ticket->HideOnTC,
                                     'Used' => $ticket->Used,
@@ -268,7 +268,7 @@ class PerformMoneySynchronization extends Command
                                 'Comment' => $ticket->Comment,
                                 'Type' => $ticket->Type,
                                 'TypeIsBets' => $ticket->TypeIsBets,
-                                'TypeIsAux' => $ticket->TypeIsAux,
+                                'TypeIsAux' => $ticket->TypeIsAux  ?? 0,
                                 'AuxConcept' => $ticket->AuxConcept,
                                 'HideOnTC' => $ticket->HideOnTC,
                                 'Used' => $ticket->Used,

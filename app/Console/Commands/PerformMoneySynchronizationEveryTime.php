@@ -269,6 +269,11 @@ class PerformMoneySynchronizationEveryTime extends Command
                             $fieldsToUpdate['UsedDateTime'] = $this->convertDateTime($ticketRemoto->UsedDateTime);
                             $fieldsToUpdate['ExpirationDate'] = $this->convertDateTime($ticketRemoto->ExpirationDate);
 
+                            // Evitar NULL en TypeIsAux
+                            if (array_key_exists('TypeIsAux', $fieldsToUpdate) && is_null($fieldsToUpdate['TypeIsAux'])) {
+                                $fieldsToUpdate['TypeIsAux'] = 0;
+                            }
+
                             $fieldsToUpdate['updated_at'] = now();
                             DB::table('tickets')->where('TicketNumber', $ticketRemoto->TicketNumber)
                                 ->where('DateTime', $ticketRemoto->DateTime)
@@ -300,7 +305,7 @@ class PerformMoneySynchronizationEveryTime extends Command
                             'Comment' => $ticketRemoto->Comment,
                             'Type' => $ticketRemoto->Type,
                             'TypeIsBets' => $ticketRemoto->TypeIsBets,
-                            'TypeIsAux' => $ticketRemoto->TypeIsAux,
+                            'TypeIsAux' => $ticketRemoto->TypeIsAux ?? 0,
                             'AuxConcept' => $ticketRemoto->AuxConcept,
                             'HideOnTC' => $ticketRemoto->HideOnTC,
                             'Used' => $ticketRemoto->Used,
@@ -352,34 +357,34 @@ class PerformMoneySynchronizationEveryTime extends Command
 
             // Obtener los logs remotos con fecha superior a la última fecha de log local
             $logsRemotos = DB::connection($connectionName)
-            ->table('logs')
-            ->where('DateTime', '>', $ultimaFechaLogLocal) // Traer solo logs posteriores
-            //->whereNotIn('Type', ['doorOpened', 'doorClosed', 'error', 'warning','powerOn', 'powerOff']) // Excluir estos tipos
-            ->where('Type', '!=', 'doorOpened')
-            ->where('Type', '!=', 'doorClosed')
-            ->where('Type', '!=', 'error')
-            ->where('Type', '!=', 'warning')
-            ->where('Type', '!=', 'powerOn')
-            ->where('Type', '!=', 'powerOff')
-            ->where(function ($query) {
-                // Excluir 'movementChange' con 'TRETA' en el texto
-                $query->where('Type', '!=', 'movementChange')
-                    ->orWhere(function ($query) {
-                        $query->where('Type', '=', 'movementChange')
-                            ->where('Text', 'not like', '%TRETA%'); // Excluir solo ciertos 'movementChange'
-                    });
-            })
-            ->where(function ($query) {
-                // Excluir los 'log' donde el 'Text' contenga "Estado ticket"
-                $query->where('Type', '!=', 'log')
-                    ->orWhere(function ($query) {
-                        $query->where('Type', '=', 'log')
-                            ->where('Text', 'like', '%creado%') // Excluir "Estado ticket" en 'log'
-                            ->where('Text', 'not like', '%BETS%'); // Excluir "Ticket cerrado" en 'log'
-                    });
-            })
-            ->get();
-           // dd($logsRemotos);
+                ->table('logs')
+                ->where('DateTime', '>', $ultimaFechaLogLocal) // Traer solo logs posteriores
+                //->whereNotIn('Type', ['doorOpened', 'doorClosed', 'error', 'warning','powerOn', 'powerOff']) // Excluir estos tipos
+                ->where('Type', '!=', 'doorOpened')
+                ->where('Type', '!=', 'doorClosed')
+                ->where('Type', '!=', 'error')
+                ->where('Type', '!=', 'warning')
+                ->where('Type', '!=', 'powerOn')
+                ->where('Type', '!=', 'powerOff')
+                ->where(function ($query) {
+                    // Excluir 'movementChange' con 'TRETA' en el texto
+                    $query->where('Type', '!=', 'movementChange')
+                        ->orWhere(function ($query) {
+                            $query->where('Type', '=', 'movementChange')
+                                ->where('Text', 'not like', '%TRETA%'); // Excluir solo ciertos 'movementChange'
+                        });
+                })
+                ->where(function ($query) {
+                    // Excluir los 'log' donde el 'Text' contenga "Estado ticket"
+                    $query->where('Type', '!=', 'log')
+                        ->orWhere(function ($query) {
+                            $query->where('Type', '=', 'log')
+                                ->where('Text', 'like', '%creado%') // Excluir "Estado ticket" en 'log'
+                                ->where('Text', 'not like', '%BETS%'); // Excluir "Ticket cerrado" en 'log'
+                        });
+                })
+                ->get();
+            // dd($logsRemotos);
             // Obtener la cantidad de logs a insertar
             $cantidadLogsAInsertar = $logsRemotos->count();
             dd('Cantidad de logs a insertar: ' . $cantidadLogsAInsertar);

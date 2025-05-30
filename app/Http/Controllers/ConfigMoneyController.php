@@ -19,19 +19,50 @@ class ConfigMoneyController extends Controller
 
     public function syncAuxiliares()
     {
-        Artisan::call('miniprometeo:sync-money-auxmoneystorage');
-        return response()->json('Comando ejecutado y envio de datos a prometeo');
+        try {
+            Artisan::call('miniprometeo:sync-money-auxmoneystorage');
+            session()->flash('success', 'Comando ejecutado y datos enviados a Prometeo correctamente.');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error al ejecutar el comando: ' . $e->getMessage());
+        }
+
+        return redirect()->back();
     }
 
     public function syncConfig()
     {
-        Artisan::call('miniprometeo:sync-money-config');
-        return response()->json('Comando ejecutado y envio de datos a prometeo');
+        try {
+            Artisan::call('miniprometeo:sync-money-config');
+            session()->flash('success', 'Comando ejecutado y datos enviados a Prometeo correctamente.');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error al ejecutar el comando: ' . $e->getMessage());
+        }
+
+        return redirect()->back();
     }
 
     public function syncHcInfo()
     {
-        Artisan::call('miniprometeo:sync-money-synchronization24h');
-        return response()->json('Comando ejecutado y envio de datos a prometeo');
+        try {
+            Artisan::call('miniprometeo:sync-money-synchronization24h');
+            session()->flash('success', 'Comando ejecutado y datos enviados a Prometeo correctamente.');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error al ejecutar el comando: ' . $e->getMessage());
+        }
+
+        return redirect()->back();
+    }
+
+    public function syncAcumulados()
+    {
+        try {
+            // Ejecutar el comando Artisan
+            Artisan::call('perform-acumulado-synchronization');
+            session()->flash('success', 'Comando ejecutado y datos enviados a Prometeo correctamente.');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error al ejecutar el comando: ' . $e->getMessage());
+        }
+
+        return redirect()->back();
     }
 }

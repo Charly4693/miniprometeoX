@@ -157,7 +157,7 @@ class ConfiguracionController extends Controller
             ]);
 
             $serialNumberProcessor = getSerialNumber();
-
+            //Log::notice(json_encode('resultado del metodo getSerialNumber'. $serialNumberProcessor));
             // Comprobar serial Number
             $checkSerialNumber = compartirSerialNumber($serialNumberProcessor, $data['locales']);
 
@@ -356,7 +356,7 @@ class ConfiguracionController extends Controller
 
     public function guardarCompania(Request $request)
     {
-
+        Log::info($request->all());
         try {
 
             $company = $request->input('$company');
@@ -373,7 +373,7 @@ class ConfiguracionController extends Controller
 
             return response()->json(['message' => 'success'], 200);
         } catch (Exception $e) {
-            //Log::info($e);
+            Log::info($e);
             return response()->json(['message' => 'error'], 400);
         }
     }
@@ -469,7 +469,7 @@ class ConfiguracionController extends Controller
     public function saveClientData(Request $request)
     {
         //Log::error($request->all());
-
+        Log::notice($request->all());
         $request->validate([
             'id' => 'required|integer',
             'user_id' => 'required|integer',
@@ -493,9 +493,11 @@ class ConfiguracionController extends Controller
                 'password_client' => true,
                 'revoked' => false,
             ]);
-
+            Log::info(json_encode($user));
             return response()->json(['message' => 'Cliente guardado correctamente.'], 201);
         } catch (\Exception $e) {
+            Log::error($e);
+
             return response()->json(['error' => 'Error al guardar el cliente: ' . $e->getMessage()], 500);
         }
     }

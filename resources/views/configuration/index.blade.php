@@ -350,20 +350,22 @@
                             contadores</a>
 
                         <!-- Botón "Borrar datos" corregido
-                                                <button class="btn btn-danger px-4" data-bs-toggle="modal"
-                                                    data-bs-target="#modalAccionesLocal{{ $data['user_cambio']->id }}">
-                                                    Borrar
-                                                </button>-->
+                                                    <button class="btn btn-danger px-4" data-bs-toggle="modal"
+                                                        data-bs-target="#modalAccionesLocal{{ $data['user_cambio']->id }}">
+                                                        Borrar
+                                                    </button>-->
                     </div>
 
                 </form>
-                <!-- Botón "Borrar datos" FUERA del form de update -->
+                <!-- Contenedor para los botones -->
                 <div class="d-flex justify-content-center gap-3 mt-3">
                     <button class="btn btn-danger px-4" data-bs-toggle="modal"
                         data-bs-target="#modalAccionesLocal{{ $data['user_cambio']->id }}">
                         Borrar
                     </button>
+                    <a class="btn btn-secondary" href="{{ route('home') }}">Volver</a>
                 </div>
+
             @endif
         </div>
     </div>

@@ -35,4 +35,8 @@ class Local extends Model
         return $this->hasMany(Session::class, 'local_id');
     }
 
+    public function config()
+    {
+        return $this->hasMany(ConfigMC::class, 'local_id');
+    }
 }
