@@ -20,14 +20,13 @@ Artisan::command('inspire', function () {
 
 // TRABAJOS QUE SE DEBEN HACER PARA SINCRONIZAR "MONEY CON MINIPROMETEO"
 
+// Estos son los JOBS que trabajamos con el ticketcServer
+
 // se debe ejecutar al principio "la 1ª vez y luego EveryTime" con miniprometeo
 Schedule::job(new MoneySynchronizationJob)->everyThirtySeconds();
 
 // se debe ejecutar al principio "la 1ª vez y luego EveryTime" y cada vez que se cambien las auxiliares
 Schedule::job(new MoneySynchronizationAuxMoneyStorageJob)->everyThirtySeconds();
-
-// se ejecuta cada 10 segundos
-Schedule::job(new ObtenerDatosTablaAcumulados)->everyTenSeconds();
 
 // se debe ejecutar cada 30 seg
 Schedule::job(new MoneySynchronizationEveryTimeJob)->everyThirtySeconds();
@@ -40,6 +39,12 @@ Schedule::job(new MoneySynchronizationConfigJob)->everyThirtySeconds();
 
 // se ejecutara siempre con poco tiempo para corregir los fallos del Type y su Alias referente a los tickets y las maquinas
 Schedule::job(new FixBugsJob)->everyFiveSeconds();
+
+// Estos son los JOBS que trabajamos con el ComData
+
+// se ejecuta cada 10 segundos
+Schedule::job(new ObtenerDatosTablaAcumulados)->everyTenSeconds();
+
 
 // TRABAJOS QUE SE DEBEN HACER PARA SINCRONIZAR "MINIPROMETEO CON PROMETEO" ENVIO DE DATOS
 

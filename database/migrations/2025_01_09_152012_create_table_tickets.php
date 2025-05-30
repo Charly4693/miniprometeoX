@@ -34,7 +34,7 @@ return new class extends Migration
             $table->text('Comment');
             $table->string('Type', 32)->default('');
             $table->tinyInteger('TypeIsBets');
-            $table->char('TypeIsAux');
+            $table->char('TypeIsAux')->default(0);
             $table->string('AuxConcept', 64)->default(''); // Modificado para especificar la longitud máxima del campo
             $table->tinyInteger('HideOnTC');
             $table->tinyInteger('Used');

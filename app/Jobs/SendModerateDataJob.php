@@ -27,6 +27,7 @@ class SendModerateDataJob implements ShouldQueue
         try {
             // Ejecutar el comando Artisan
             Artisan::call('miniprometeo:send-moderate-data-command');
+            Log::info('enviando datos moderados a prometeo');
         } catch (\Exception $e) {
             // Registrar el error en los logs
             Log::error('Error ejecutando miniprometeo:send-moderate-data-command: ' . $e->getMessage());
