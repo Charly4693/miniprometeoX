@@ -17,23 +17,16 @@ class ApiClientServiceProvider extends ServiceProvider
     {
         // Vincular ApiClient como un singleton
         $this->app->singleton(ApiClient::class, function ($app) {
-            Log::info('Intentando obtener el usuario Miniprometeo.');
+            //Log::info('Intentando obtener el usuario Miniprometeo.');
 
             // Obtener el usuario 'Miniprometeo'
             $user = User::where('name', 'Miniprometeo')->first();
 
             if ($user) {
-                Log::info('Usuario Miniprometeo encontrado.', [
-                    'user_id' => $user->id,
-                    'name' => $user->name
-                ]);
+                //Log::info('Usuario Miniprometeo encontrado.', ['user_id' => $user->id,'name' => $user->name]);
 
                 // Crear la instancia de ApiClient
-                Log::info('Creando instancia de ApiClient.', [
-                    'baseUrl' => config('app.api_server_url'),
-                    'clientId' => config('app.passport_client_id'),
-                    'clientSecret' => config('app.passport_client_secret')
-                ]);
+                //Log::info('Creando instancia de ApiClient.', ['baseUrl' => config('app.api_server_url'),'clientId' => config('app.passport_client_id'),'clientSecret' => config('app.passport_client_secret')]);
 
                 return new ApiClient(
                     config('app.api_server_url'),        // URL del servidor API desde config/app.php o .env

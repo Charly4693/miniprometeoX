@@ -3,6 +3,8 @@ const blockDeError = document.getElementById('company_error_message');
 const PROMETEO_PRINCIPAL_IP = @json(session('PROMETEO_PRINCIPAL_IP'));
 const PROMETEO_PRINCIPAL_PORT = @json(session('PROMETEO_PRINCIPAL_PORT'));
 
+
+
 if (buttonPedirCompany !== null) {
     buttonPedirCompany.addEventListener('click', async () => {
         const companyName = document.getElementById('input_company').value;

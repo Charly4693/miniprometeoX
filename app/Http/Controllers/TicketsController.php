@@ -167,7 +167,7 @@ class TicketsController extends Controller
 
                     $this->generarLogConfirm($local, $request->tickets, 'abort', $user);
                 }
-                Log::info($nombreUsuario);
+                //Log::info($nombreUsuario);
 
                 return redirect()->route("tickets.index", $local)->with(['success' => 'Ticket abortado exitosamanete y currentBalance aztualizado.']);
             } else {

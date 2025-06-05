@@ -256,7 +256,7 @@ class PerformMoneySynchronization24h extends Command
                                 'updated_at' => now(),
                             ]);
 
-                        Log::info('Registro actualizado: local_id=' . $local->id . ', HCName=' . $item->HCName);
+                        //Log::info('Registro actualizado: local_id=' . $local->id . ', HCName=' . $item->HCName);
                     } else {
                         // Insertar un nuevo registro
                         DB::table('hcmoneystorage')->insert([
@@ -271,7 +271,7 @@ class PerformMoneySynchronization24h extends Command
                             'updated_at' => now(),
                         ]);
 
-                        Log::info('Nuevo registro insertado: local_id=' . $local->id . ', HCName=' . $item->HCName);
+                        //Log::info('Nuevo registro insertado: local_id=' . $local->id . ', HCName=' . $item->HCName);
                     }
                 }
 
@@ -322,7 +322,7 @@ class PerformMoneySynchronization24h extends Command
                                 'updated_at' => now(),
                             ]);
 
-                        Log::info('Registro actualizado: local_id=' . $local->id . ', LinkedTicketId=' . $item->LinkedTicketId);
+                        //Log::info('Registro actualizado: local_id=' . $local->id . ', LinkedTicketId=' . $item->LinkedTicketId);
                     } else {
                         // Insertar un nuevo registro
                         DB::table('hiddentickets')->insert([
@@ -335,7 +335,7 @@ class PerformMoneySynchronization24h extends Command
                             'updated_at' => now(),
                         ]);
 
-                        Log::info('Nuevo registro insertado: local_id=' . $local->id . ', LinkedTicketId=' . $item->LinkedTicketId);
+                        //Log::info('Nuevo registro insertado: local_id=' . $local->id . ', LinkedTicketId=' . $item->LinkedTicketId);
                     }
                 }
 
@@ -364,7 +364,7 @@ class PerformMoneySynchronization24h extends Command
                                 'updated_at' => now(),
                             ]);
 
-                        Log::info('Registro actualizado: local_id=' . $local->id . ', Player=' . $item->Player);
+                        //Log::info('Registro actualizado: local_id=' . $local->id . ', Player=' . $item->Player);
                     } else {
                         // Insertar un nuevo registro
                         DB::table('players')->insert([
@@ -381,7 +381,7 @@ class PerformMoneySynchronization24h extends Command
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);
-                        Log::info('Nuevo registro insertado: local_id=' . $local->id . ', Player=' . $item->Player);
+                        //Log::info('Nuevo registro insertado: local_id=' . $local->id . ', Player=' . $item->Player);
                     }
                 }
 
@@ -405,7 +405,7 @@ class PerformMoneySynchronization24h extends Command
                                     'updated_at' => now(),
                                 ]);
 
-                            Log::info('Registro actualizado en sessions_ticketServer: Id=' . $session->Id . ', local_id=' . $local->id);
+                            //Log::info('Registro actualizado en sessions_ticketServer: Id=' . $session->Id . ', local_id=' . $local->id);
                         } else {
                             // Insertar un nuevo registro en 'sessions_ticketServer'
                             DB::table('sessions_ticketServer')->insert([
@@ -417,7 +417,7 @@ class PerformMoneySynchronization24h extends Command
                                 'updated_at' => now(),
                             ]);
 
-                            Log::info('Nuevo registro insertado en sessions_ticketServer: Id=' . $session->Id . ', local_id=' . $local->id);
+                            //Log::info('Nuevo registro insertado en sessions_ticketServer: Id=' . $session->Id . ', local_id=' . $local->id);
                         }
 
                         DB::commit();

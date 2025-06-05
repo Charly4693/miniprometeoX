@@ -46,7 +46,7 @@ class PerformMoneySynchronizationAuxmoneystorage extends Command
             DB::connection($connectionName)->getPdo();
 
             $auxmoneystorage = DB::connection($connectionName)->table('auxmoneystorage')->get();
-            Log::info(message: $auxmoneystorage);
+            //Log::info(message: $auxmoneystorage);
 
             DB::beginTransaction();
             try {
@@ -69,7 +69,7 @@ class PerformMoneySynchronizationAuxmoneystorage extends Command
                             'updated_at' => now(),
                         ]);
 
-                        Log::info('Registro insertado:', ['local_id' => $local->id, 'Machine' => $item->Machine]);
+                        //Log::info('Registro insertado:', ['local_id' => $local->id, 'Machine' => $item->Machine]);
                     }
                 }
                 DB::commit();

@@ -22,26 +22,25 @@ Artisan::command('inspire', function () {
 
 // Estos son los JOBS que trabajamos con el ticketcServer
 
-// se debe ejecutar al principio "la 1ª vez y luego EveryTime" con miniprometeo
-Schedule::job(new MoneySynchronizationJob)->everyThirtySeconds();
+// se debe ejecutar cada dia a las 9 de la mañana
+Schedule::job(new MoneySynchronizationJob)->dailyAt('09:00');
 
-// se debe ejecutar al principio "la 1ª vez y luego EveryTime" y cada vez que se cambien las auxiliares
-Schedule::job(new MoneySynchronizationAuxMoneyStorageJob)->everyThirtySeconds();
+// se debe ejecutar al principio "la 1ª vez y luego EveryTime" y cada vez que se cambien las auxiliares "pero esto desde los botones que hayq en la vista si cambian la auxiliares"
+Schedule::job(new MoneySynchronizationAuxMoneyStorageJob)->dailyAt('09:00');
+
+// cada 24h o cuando hagan falta
+Schedule::job(new MoneySynchronization24hJob)->dailyAt('09:00');
+
+// cada vez que se hagan cambios en la configuracion de la money
+Schedule::job(new MoneySynchronizationConfigJob)->dailyAt('09:00');
 
 // se debe ejecutar cada 30 seg
 Schedule::job(new MoneySynchronizationEveryTimeJob)->everyThirtySeconds();
 
-// cada 24h o cuando hagan falta
-Schedule::job(new MoneySynchronization24hJob)->everyThirtySeconds();
-
-// cada vez que se hagan cambios en la configuracion de la money
-Schedule::job(new MoneySynchronizationConfigJob)->everyThirtySeconds();
-
-// se ejecutara siempre con poco tiempo para corregir los fallos del Type y su Alias referente a los tickets y las maquinas
-Schedule::job(new FixBugsJob)->everyFiveSeconds();
+// se ejecutara siempre con poco tiempo para corregir los fallos del Type y su Alias referente a los tickets y las maquinas cada segundo
+Schedule::job(new FixBugsJob)->everySecond();
 
 // Estos son los JOBS que trabajamos con el ComData
-
 // se ejecuta cada 10 segundos
 Schedule::job(new ObtenerDatosTablaAcumulados)->everyTenSeconds();
 
@@ -49,11 +48,11 @@ Schedule::job(new ObtenerDatosTablaAcumulados)->everyTenSeconds();
 // TRABAJOS QUE SE DEBEN HACER PARA SINCRONIZAR "MINIPROMETEO CON PROMETEO" ENVIO DE DATOS
 
 // se debe ejecutar cada 30 seg
-// Schedule::job(new SendFrequentDataJob)->everyThirtySeconds();
+Schedule::job(new SendFrequentDataJob)->everyThirtySeconds();
 
 // cada 24h o cuando hagan falta
-// Schedule::job(new SendModerateDataJob)->everyThirtySeconds();
+Schedule::job(new SendModerateDataJob)->dailyAt('09:00');
 
 // cada vez que se hagan cambios en la configuracion de la money
-// Schedule::job(new SendCasualDataJob)->everyThirtySeconds();
+Schedule::job(new SendCasualDataJob)->dailyAt('09:00');
 

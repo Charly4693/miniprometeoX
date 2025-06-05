@@ -65,11 +65,11 @@ return [
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),
-            'host' => env('DB_HOST', '127.0.0.1'),
+            'host' => env('DB_HOST', '80.28.98.247'),
             'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'laravel'),
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', ''),
+            'database' => env('DB_DATABASE', 'prometeo'),
+            'username' => env('DB_USERNAME', 'ccm'),
+            'password' => env('DB_PASSWORD', 'ccm10'),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => env('DB_CHARSET', 'utf8mb4'),
             'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
@@ -114,7 +114,7 @@ return [
 
         'remote_prometeo_test' => [
             'driver' => 'mysql',
-            'host' => '192.168.1.41',  // IP de tu servidor PostgreSQL remoto
+            'host' => '192.168.1.200',  // IP de tu servidor PostgreSQL remoto
             'port' => '3306',           // Puerto de la base de datos (por defecto PostgreSQL usa 5432)
             'database' => env('REMOTE_DB_DATABASE', 'prometeo'), // Nombre de la base de datos
             'username' => env('REMOTE_DB_USERNAME', 'root'), // Usuario para la conexión

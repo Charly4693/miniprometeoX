@@ -68,7 +68,7 @@ class FixBugsCommand extends Command
         }
 
         // Log para indicar que el procesamiento se completó
-        Log::info("Procesamiento de tickets completado.");
+        //Log::info("Procesamiento de tickets completado.");
         // Mensaje en la consola
         echo "Procesamiento de tickets completado." . PHP_EOL; // Muestra en la consola
     }
@@ -94,22 +94,22 @@ class FixBugsCommand extends Command
                 $machine = Machine::where('alias', $alias)->first();
                 $updateType = true; // Permitimos actualizar 'Type'
             } else {
-                Log::warning("No se pudo extraer el alias del campo Comment: {$ticket->Comment}");
+                //Log::warning("No se pudo extraer el alias del campo Comment: {$ticket->Comment}");
 
                 // Si no se pudo extraer el alias, buscar en TypeAlias
                 $typeAlias = TypeAlias::where('type', $ticket->Type)->first();
                 if ($typeAlias) {
-                    Log::info("Asociación encontrada en type_alias para Type: {$ticket->Type}. ID de máquina asociada: {$typeAlias->id_machine}");
+                    //Log::info("Asociación encontrada en type_alias para Type: {$ticket->Type}. ID de máquina asociada: {$typeAlias->id_machine}");
                     $machine = Machine::find($typeAlias->id_machine);
                     $updateType = false; // En este caso, no actualizaremos 'Type', solo 'TypeIsAux'
                 } else {
-                    Log::warning("No se encontró asociación en type_alias para Type: {$ticket->Type}");
+                    //Log::warning("No se encontró asociación en type_alias para Type: {$ticket->Type}");
                     continue; // Pasar al siguiente ticket si no hay alias ni asociación
                 }
             }
 
             if ($machine) {
-                Log::info("Máquina encontrada: {$machine->alias} - r_auxiliar: {$machine->r_auxiliar}");
+                //Log::info("Máquina encontrada: {$machine->alias} - r_auxiliar: {$machine->r_auxiliar}");
 
                 // Guardar valores anteriores del ticket
                 $oldType = $ticket->Type;
@@ -131,7 +131,7 @@ class FixBugsCommand extends Command
                         ->where('TicketNumber', $ticket->TicketNumber)
                         ->update($updateData);
 
-                    Log::info("TicketNumber: {$ticket->TicketNumber} actualizado con TypeIsAux: {$rAuxiliar}" . ($updateType ? " y Type: {$machine->alias}" : ""));
+                    //Log::info("TicketNumber: {$ticket->TicketNumber} actualizado con TypeIsAux: {$rAuxiliar}" . ($updateType ? " y Type: {$machine->alias}" : ""));
 
                     // Obtener la IP del ordenador
                     $ip = gethostbyname(gethostname());
@@ -154,16 +154,16 @@ class FixBugsCommand extends Command
 
                     $editedCount++;
                 } else {
-                    Log::info("No se requiere actualización para TicketNumber: {$ticket->TicketNumber}, TypeIsAux ya es correcto.");
+                    //Log::info("No se requiere actualización para TicketNumber: {$ticket->TicketNumber}, TypeIsAux ya es correcto.");
                     $noUpdateCount++;
                 }
             } else {
-                Log::warning("Máquina no encontrada para el TicketNumber: {$ticket->TicketNumber}");
+                //Log::warning("Máquina no encontrada para el TicketNumber: {$ticket->TicketNumber}");
             }
         }
 
         // Log final del proceso
-        Log::info("Procesamiento de tickets TECNAUSA completado. Total de tickets procesados: {$totalProcessed}, tickets editados: {$editedCount}, tickets sin actualización: {$noUpdateCount}.");
+        //Log::info("Procesamiento de tickets TECNAUSA completado. Total de tickets procesados: {$totalProcessed}, tickets editados: {$editedCount}, tickets sin actualización: {$noUpdateCount}.");
 
         // Mensaje en consola
         echo "Procesamiento de tickets TECNAUSA completado." . PHP_EOL .
@@ -182,23 +182,23 @@ class FixBugsCommand extends Command
 
         foreach ($tickets as $ticket) {
             $totalProcessed++; // Incrementar el contador de tickets procesados
-            Log::info("Procesando ticket: {$ticket->TicketNumber} con Type: {$ticket->Type}");
+            //Log::info("Procesando ticket: {$ticket->TicketNumber} con Type: {$ticket->Type}");
 
             // Buscar la asociación en type_alias utilizando el tipo de ticket
             $typeAlias = TypeAlias::where('type', $ticket->Type)->first();
 
             if ($typeAlias) {
-                Log::info("Asociación encontrada en type_alias para Type: {$ticket->Type}. ID de máquina asociada: {$typeAlias->id_machine}");
+                //Log::info("Asociación encontrada en type_alias para Type: {$ticket->Type}. ID de máquina asociada: {$typeAlias->id_machine}");
 
                 // Si hay una asociación, obtener la máquina correspondiente
                 $machine = Machine::find($typeAlias->id_machine);
 
                 if ($machine) {
-                    Log::info("Máquina encontrada: {$machine->alias}. r_auxiliar: {$machine->r_auxiliar}");
+                    //Log::info("Máquina encontrada: {$machine->alias}. r_auxiliar: {$machine->r_auxiliar}");
 
                     // Guardar valores anteriores
                     $oldTypeIsAux = $ticket->TypeIsAux;
-                    Log::info("TypeIsAux anterior: {$oldTypeIsAux}");
+                    //Log::info("TypeIsAux anterior: {$oldTypeIsAux}");
 
                     // Comparar TypeIsAux del ticket con r_auxiliar de la máquina
                     if ($oldTypeIsAux != $machine->r_auxiliar) {
@@ -207,33 +207,33 @@ class FixBugsCommand extends Command
                             ->where('TicketNumber', $ticket->TicketNumber)
                             ->update(['TypeIsAux' => $machine->r_auxiliar]);
 
-                        Log::info("TypeIsAux actualizado de {$oldTypeIsAux} a {$machine->r_auxiliar} para TicketNumber: {$ticket->TicketNumber}");
+                        //Log::info("TypeIsAux actualizado de {$oldTypeIsAux} a {$machine->r_auxiliar} para TicketNumber: {$ticket->TicketNumber}");
                         $editedCount++;
                     } else {
-                        Log::info("No se requiere actualización para TicketNumber: {$ticket->TicketNumber}, TypeIsAux ya es correcto.");
+                        //Log::info("No se requiere actualización para TicketNumber: {$ticket->TicketNumber}, TypeIsAux ya es correcto.");
                         $noUpdateCount++; // Incrementar contador de tickets que no requieren actualización
                     }
                 } else {
-                    Log::warning("No se encontró una máquina con id: {$typeAlias->id_machine} para TicketNumber: {$ticket->TicketNumber}");
+                    //Log::warning("No se encontró una máquina con id: {$typeAlias->id_machine} para TicketNumber: {$ticket->TicketNumber}");
                 }
             } else {
-                Log::warning("No se encontró una asociación en type_alias para Type: {$ticket->Type} y TicketNumber: {$ticket->TicketNumber}");
+                //Log::warning("No se encontró una asociación en type_alias para Type: {$ticket->Type} y TicketNumber: {$ticket->TicketNumber}");
 
                 // Nueva comprobación: buscar en Machine si el Type coincide con un alias
                 $machineByAlias = Machine::where('alias', $ticket->Type)->first();
 
                 if ($machineByAlias) {
-                    Log::info("Se encontró una máquina con alias coincidente: {$machineByAlias->alias}. r_auxiliar: {$machineByAlias->r_auxiliar}");
+                    //Log::info("Se encontró una máquina con alias coincidente: {$machineByAlias->alias}. r_auxiliar: {$machineByAlias->r_auxiliar}");
 
                     if ($ticket->TypeIsAux != $machineByAlias->r_auxiliar) {
                         DB::connection($conexion)->table('tickets')
                             ->where('TicketNumber', $ticket->TicketNumber)
                             ->update(['TypeIsAux' => $machineByAlias->r_auxiliar]);
 
-                        Log::info("TypeIsAux actualizado a {$machineByAlias->r_auxiliar} para TicketNumber: {$ticket->TicketNumber} por coincidencia en alias.");
+                        //Log::info("TypeIsAux actualizado a {$machineByAlias->r_auxiliar} para TicketNumber: {$ticket->TicketNumber} por coincidencia en alias.");
                         $editedCount++;
                     } else {
-                        Log::info("No se requiere actualización para TicketNumber: {$ticket->TicketNumber}, TypeIsAux ya es correcto.");
+                        //Log::info("No se requiere actualización para TicketNumber: {$ticket->TicketNumber}, TypeIsAux ya es correcto.");
                         $noUpdateCount++;
                     }
                 } else {
@@ -243,17 +243,17 @@ class FixBugsCommand extends Command
                             ->where('TicketNumber', $ticket->TicketNumber)
                             ->update(['TypeIsAux' => 0]);
 
-                        Log::info("TypeIsAux actualizado a 0 para TicketNumber: {$ticket->TicketNumber} ya que no se encontró en TypeAlias ni en Machine.");
+                        //Log::info("TypeIsAux actualizado a 0 para TicketNumber: {$ticket->TicketNumber} ya que no se encontró en TypeAlias ni en Machine.");
                         $editedCount++;
                     } else {
-                        Log::info("No se requiere actualización para TicketNumber: {$ticket->TicketNumber}, TypeIsAux ya es 0.");
+                        //Log::info("No se requiere actualización para TicketNumber: {$ticket->TicketNumber}, TypeIsAux ya es 0.");
                         $noUpdateCount++;
                     }
                 }
             }
         }
 
-        Log::info("Procesamiento de tickets general completado. Total de tickets procesados: {$totalProcessed}, tickets editados: {$editedCount}, tickets sin actualización: {$noUpdateCount}.");
+        //Log::info("Procesamiento de tickets general completado. Total de tickets procesados: {$totalProcessed}, tickets editados: {$editedCount}, tickets sin actualización: {$noUpdateCount}.");
         echo "Procesamiento de tickets general completado." . PHP_EOL .
             "Total de tickets procesados: {$totalProcessed}." . PHP_EOL .
             "Total de tickets editados: {$editedCount}." . PHP_EOL .

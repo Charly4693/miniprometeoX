@@ -27,7 +27,7 @@ class SendFrequentDataJob implements ShouldQueue
         try {
             // Ejecutar el comando Artisan
             Artisan::call('miniprometeo:send-frequent-data-command');
-            Log::info('enviando datos frecuentes a prometeo');
+            //Log::info('enviando datos frecuentes a prometeo');
         } catch (\Exception $e) {
             // Registrar el error en los logs
             Log::error('Error ejecutando miniprometeo:send-frequent-data-command: ' . $e->getMessage());

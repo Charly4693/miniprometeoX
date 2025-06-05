@@ -35,7 +35,7 @@ class SendFrequentDataCommand extends Command
     {
         // Instanciar el ApiClient
         $apiClient = app(ApiClient::class);
-        Log::info('Instanciando ApiClient', ['apiClient' => json_encode($apiClient)]);
+        //Log::info('Instanciando ApiClient', ['apiClient' => json_encode($apiClient)]);
 
         $user = User::where('name', 'Miniprometeo')->first();
         $password = 'Mini1234';
@@ -44,8 +44,8 @@ class SendFrequentDataCommand extends Command
             $this->error('Usuario no encontrado.');
             return;
         }
-        Log::notice('apiclient ---------------- ' . json_encode($apiClient));
-        Log::info('Usuario encontrado', ['user' => $user]);
+        //Log::notice('apiclient ---------------- ' . json_encode($apiClient));
+        //Log::info('Usuario encontrado', ['user' => $user]);
 
         $this->sendCollectDetailsData($apiClient, $user, $password);
         $this->sendCollectsData($apiClient, $user, $password);
@@ -60,7 +60,7 @@ class SendFrequentDataCommand extends Command
     private function sendAcumuladoData(ApiClient $apiClient, User $user, string $password)
     {
         $data = Acumulado::all()->toArray(); // Convertir a array para enviar
-        Log::info('Datos a enviar de Acumulado', ['data' => $data]);
+        //Log::info('Datos a enviar de Acumulado', ['data' => $data]);
 
         // Definir el prefijo como el nombre del modelo en minúsculas
         $prefijo = strtolower(class_basename(Acumulado::class)); // 'acumulado'
@@ -69,11 +69,11 @@ class SendFrequentDataCommand extends Command
         $prefixedData = [
             "{$prefijo}" => $data,
         ];
-        Log::notice($prefixedData);
+        //Log::notice($prefixedData);
 
         try {
             $response = $apiClient->sendData($user, $password, 'api/save-data-frequent', $prefixedData);
-            Log::info('Respuesta del servidor', ['response' => $response]);
+            //Log::info('Respuesta del servidor', ['response' => $response]);
 
             if ($response) {
                 $this->info('Datos de Acumulado enviados con éxito.');
@@ -89,7 +89,7 @@ class SendFrequentDataCommand extends Command
     private function sendCollectDetailsData(ApiClient $apiClient, User $user, string $password)
     {
         $data = CollectDetail::all()->toArray(); // Convertir a array para enviar
-        Log::info('Datos a enviar de CollectDetail', ['data' => $data]);
+        //Log::info('Datos a enviar de CollectDetail', ['data' => $data]);
 
         // Definir el prefijo como el nombre del modelo en minúsculas
         $prefijo = strtolower(class_basename(CollectDetail::class)); // 'collectdetail'
@@ -98,11 +98,10 @@ class SendFrequentDataCommand extends Command
         $prefixedData = [
             "{$prefijo}" => $data,
         ];
-        Log::notice($prefixedData);
-
+        //Log::notice($prefixedData);
         try {
             $response = $apiClient->sendData($user, $password, 'api/save-data-frequent', $prefixedData);
-            Log::info('Respuesta del servidor', ['response' => $response]);
+            //Log::info('Respuesta del servidor', ['response' => $response]);
 
             if ($response) {
                 $this->info('Datos de CollectDetail enviados con éxito.');
@@ -118,7 +117,7 @@ class SendFrequentDataCommand extends Command
     private function sendCollectsData(ApiClient $apiClient, User $user, string $password)
     {
         $data = Collect::all()->toArray(); // Convertir a array para enviar
-        Log::info('Datos a enviar de Collect', ['data' => $data]);
+        //Log::info('Datos a enviar de Collect', ['data' => $data]);
 
         // Definir el prefijo como el nombre del modelo en minúsculas
         $prefijo = strtolower(class_basename(Collect::class)); // 'collect'
@@ -127,11 +126,12 @@ class SendFrequentDataCommand extends Command
         $prefixedData = [
             "{$prefijo}" => $data,
         ];
-        Log::notice($prefixedData);
+        //Log::notice($prefixedData);
+        //Log::notice($prefixedData);
 
         try {
             $response = $apiClient->sendData($user, $password, 'api/save-data-frequent', $prefixedData);
-            Log::info('Respuesta del servidor', ['response' => $response]);
+            //Log::info('Respuesta del servidor', ['response' => $response]);
 
             if ($response) {
                 $this->info('Datos de Collect enviados con éxito.');
@@ -147,7 +147,7 @@ class SendFrequentDataCommand extends Command
     private function sendLogsData(ApiClient $apiClient, User $user, string $password)
     {
         $data = ModelLog::all()->toArray(); // Convertir a array para enviar
-        Log::info('Datos a enviar de Log', ['data' => $data]);
+        //Log::info('Datos a enviar de Log', ['data' => $data]);
 
         // Definir el prefijo como el nombre del modelo en minúsculas
         $prefijo = strtolower(class_basename(Log::class)); // 'log'
@@ -156,11 +156,11 @@ class SendFrequentDataCommand extends Command
         $prefixedData = [
             "{$prefijo}" => $data,
         ];
-        Log::notice($prefixedData);
+        //Log::notice($prefixedData);
 
         try {
             $response = $apiClient->sendData($user, $password, 'api/save-data-frequent', $prefixedData);
-            Log::info('Respuesta del servidor', ['response' => $response]);
+            //Log::info('Respuesta del servidor', ['response' => $response]);
 
             if ($response) {
                 $this->info('Datos de Log enviados con éxito.');
@@ -176,7 +176,7 @@ class SendFrequentDataCommand extends Command
     private function sendTicketsData(ApiClient $apiClient, User $user, string $password)
     {
         $data = Ticket::all()->toArray(); // Convertir a array para enviar
-        Log::info('Datos a enviar de Ticket', ['data' => $data]);
+        //Log::info('Datos a enviar de Ticket', ['data' => $data]);
 
         // Definir el prefijo como el nombre del modelo en minúsculas
         $prefijo = strtolower(class_basename(Ticket::class)); // 'ticket'
@@ -185,11 +185,11 @@ class SendFrequentDataCommand extends Command
         $prefixedData = [
             "{$prefijo}" => $data,
         ];
-        Log::notice($prefixedData);
+        //Log::notice($prefixedData);
 
         try {
             $response = $apiClient->sendData($user, $password, 'api/save-data-frequent', $prefixedData);
-            Log::info('Respuesta del servidor', ['response' => $response]);
+            //Log::info('Respuesta del servidor', ['response' => $response]);
 
             if ($response) {
                 $this->info('Datos de Ticket enviados con éxito.');

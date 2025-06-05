@@ -28,7 +28,7 @@ class SendCasualDataJob implements ShouldQueue
         try {
             // Ejecutar el comando Artisan
             Artisan::call('miniprometeo:send-casual-data-command');
-            Log::info('enviando datos casuales a prometeo');
+            //Log::info('enviando datos casuales a prometeo');
         } catch (\Exception $e) {
             // Registrar el error en los logs
             Log::error('Error ejecutando miniprometeo:send-casual-data-command: ' . $e->getMessage());

@@ -42,7 +42,7 @@ class PerformMoneySynchronizationEveryTime extends Command
 
     protected function connectToTicketServer(Local $local): void
     {
-        LOG::info('88888888888888888888888888888888888888888888888888888888888888888888888888888888');
+        //Log::info('88888888888888888888888888888888888888888888888888888888888888888888888888888888');
         $connectionName = nuevaConexionLocal('ccm');
 
         try {
@@ -91,7 +91,7 @@ class PerformMoneySynchronizationEveryTime extends Command
                                 'updated_at' => now(),
                             ]);
 
-                        Log::info('Registro actualizado en collects: id=' . $existingRecord->id . ', local_id=' . $local->id . ', LocationType=' . $item->LocationType . ', UserMoney=' . $machine);
+                        //Log::info('Registro actualizado en collects: id=' . $existingRecord->id . ', local_id=' . $local->id . ', LocationType=' . $item->LocationType . ', UserMoney=' . $machine);
                     } else {
                         // Insertar nuevo registro
                         DB::table('collects')->insert([
@@ -107,7 +107,7 @@ class PerformMoneySynchronizationEveryTime extends Command
                             'updated_at' => now(),
                         ]);
 
-                        Log::info('Nuevo registro insertado en collects: local_id=' . $local->id . ', LocationType=' . $item->LocationType . ', UserMoney=' . $machine);
+                        //Log::info('Nuevo registro insertado en collects: local_id=' . $local->id . ', LocationType=' . $item->LocationType . ', UserMoney=' . $machine);
                     }
                 }
                 DB::commit();
@@ -145,7 +145,7 @@ class PerformMoneySynchronizationEveryTime extends Command
                                 'updated_at' => now(),
                             ]);
 
-                        Log::info('Registro actualizado en collectdetails: id=' . $existingDetail->id  . ', CollectDetailType=' . $item->CollectDetailType . ', UserMoney=' . $userMoney);
+                        //Log::info('Registro actualizado en collectdetails: id=' . $existingDetail->id  . ', CollectDetailType=' . $item->CollectDetailType . ', UserMoney=' . $userMoney);
                     } else {
                         // Insertar nuevo registro
                         DB::table('collectdetails')->insert([
@@ -161,7 +161,7 @@ class PerformMoneySynchronizationEveryTime extends Command
                             'updated_at' => now(),
                         ]);
 
-                        Log::info('Nuevo registro insertado en collectdetails: CollectDetailType=' . $item->CollectDetailType . ', UserMoney=' . $userMoney);
+                        //Log::info('Nuevo registro insertado en collectdetails: CollectDetailType=' . $item->CollectDetailType . ', UserMoney=' . $userMoney);
                     }
                 }
                 DB::commit();
@@ -474,11 +474,11 @@ class PerformMoneySynchronizationEveryTime extends Command
                 echo "Datos sincronizados correctamente.";
             } catch (Exception $e) {
                 DB::rollBack();
-                LOG::info('Error al insertar los datos en las tablas collectinfo y auxmoneystorageinfo' . $e->getMessage());
+                LOG::error('Error al insertar los datos en las tablas collectinfo y auxmoneystorageinfo' . $e->getMessage());
                 echo "Error al insertar los datos: " . $e->getMessage();
             }
         } catch (Exception $e) {
-            Log::info('Error al conectar a la base de datos: ' . $e->getMessage());
+            Log::error('Error al conectar a la base de datos: ' . $e->getMessage());
             echo "Error al conectar a la base de datos: " . $e->getMessage();
         }
     }

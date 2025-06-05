@@ -39,7 +39,7 @@ class SendCasualDataCommand extends Command
     {
         // Instanciar el ApiClient
         $apiClient = app(ApiClient::class);
-        Log::info('Instanciando ApiClient', ['apiClient' => json_encode($apiClient)]);
+        //Log::info('Instanciando ApiClient', ['apiClient' => json_encode($apiClient)]);
 
         $user = User::where('name', 'Miniprometeo')->first();
         $password = 'Mini1234';
@@ -48,8 +48,8 @@ class SendCasualDataCommand extends Command
             $this->error('Usuario no encontrado.');
             return;
         }
-        Log::notice('apiclient ---------------- ' . json_encode($apiClient));
-        Log::info('Usuario encontrado', ['user' => $user]);
+        //Log::notice('apiclient ---------------- ' . json_encode($apiClient));
+        //Log::info('Usuario encontrado', ['user' => $user]);
         $this->sendCollectDetailsInfoData($apiClient, $user, $password);
         $this->sendCollectInfoData($apiClient, $user, $password);
         $this->sendHcMoneyStorageData($apiClient, $user, $password);
@@ -71,7 +71,7 @@ class SendCasualDataCommand extends Command
     private function sendCollectDetailsInfoData(ApiClient $apiClient, User $user, string $password)
     {
         $data = CollectDetailsInfo::all()->toArray();
-        Log::info('Datos a enviar de CollectDetailsInfo', ['data' => $data]);
+        //Log::info('Datos a enviar de CollectDetailsInfo', ['data' => $data]);
 
         // Definir el prefijo como el nombre del modelo en minúsculas
         $prefijo = strtolower(class_basename(CollectDetailsInfo::class)); // 'collectdetailsinfo'
@@ -80,10 +80,10 @@ class SendCasualDataCommand extends Command
         $prefixedData = [
             "{$prefijo}" => $data, // Aquí el prefijo es solo el nombre del modelo
         ];
-        Log::notice($prefixedData);
+        //Log::notice($prefixedData);
         try {
             $response = $apiClient->sendData($user, $password, 'api/save-data-casual', $prefixedData);
-            Log::info('Respuesta del servidor', ['response' => $response]);
+            //Log::info('Respuesta del servidor', ['response' => $response]);
 
             if ($response) {
                 $this->info('Datos de CollectDetailsInfo enviados con éxito.');
@@ -98,7 +98,7 @@ class SendCasualDataCommand extends Command
     private function sendCollectInfoData(ApiClient $apiClient, User $user, string $password)
     {
         $data = CollectInfo::all()->toArray(); // Convertir a array para enviar
-        Log::info('Datos a enviar de CollectInfo', ['data' => $data]);
+        //Log::info('Datos a enviar de CollectInfo', ['data' => $data]);
 
         // Definir el prefijo como el nombre del modelo en minúsculas
         $prefijo = strtolower(class_basename(CollectInfo::class)); // 'collectinfo'
@@ -107,10 +107,10 @@ class SendCasualDataCommand extends Command
         $prefixedData = [
             "{$prefijo}" => $data, // Aquí el prefijo es solo el nombre del modelo
         ];
-        Log::notice($prefixedData);
+        //Log::notice($prefixedData);
         try {
             $response = $apiClient->sendData($user, $password, 'api/save-data-casual', $prefixedData);
-            Log::info('Respuesta del servidor', ['response' => $response]);
+            //Log::info('Respuesta del servidor', ['response' => $response]);
 
             if ($response) {
                 $this->info('Datos de CollectInfo enviados con éxito.');
@@ -127,7 +127,7 @@ class SendCasualDataCommand extends Command
     private function sendHcMoneyStorageData(ApiClient $apiClient, User $user, string $password)
     {
         $data = HcMoneyStorage::all()->toArray(); // Convertir a array para enviar
-        Log::info('Datos a enviar de HcMoneyStorage', ['data' => $data]);
+        //Log::info('Datos a enviar de HcMoneyStorage', ['data' => $data]);
 
         // Definir el prefijo como el nombre del modelo en minúsculas
         $prefijo = strtolower(class_basename(HcMoneyStorage::class)); // 'hcmoneystorage'
@@ -136,11 +136,11 @@ class SendCasualDataCommand extends Command
         $prefixedData = [
             "{$prefijo}" => $data,
         ];
-        Log::notice($prefixedData);
+        //Log::notice($prefixedData);
 
         try {
             $response = $apiClient->sendData($user, $password, 'api/save-data-casual', $prefixedData);
-            Log::info('Respuesta del servidor', ['response' => $response]);
+            //Log::info('Respuesta del servidor', ['response' => $response]);
 
             if ($response) {
                 $this->info('Datos de HcMoneyStorage enviados con éxito.');
@@ -155,7 +155,7 @@ class SendCasualDataCommand extends Command
     private function sendHcMoneyStorageInfoData(ApiClient $apiClient, User $user, string $password)
     {
         $data = HcMoneyStorageInfo::all()->toArray(); // Convertir a array para enviar
-        Log::info('Datos a enviar de HcMoneyStorageInfo', ['data' => $data]);
+        //Log::info('Datos a enviar de HcMoneyStorageInfo', ['data' => $data]);
 
         // Definir el prefijo como el nombre del modelo en minúsculas
         $prefijo = strtolower(class_basename(HcMoneyStorageInfo::class)); // 'hcmoneystorageinfo'
@@ -164,11 +164,11 @@ class SendCasualDataCommand extends Command
         $prefixedData = [
             "{$prefijo}" => $data,
         ];
-        Log::notice($prefixedData);
+        //Log::notice($prefixedData);
 
         try {
             $response = $apiClient->sendData($user, $password, 'api/save-data-casual', $prefixedData);
-            Log::info('Respuesta del servidor', ['response' => $response]);
+            //Log::info('Respuesta del servidor', ['response' => $response]);
 
             if ($response) {
                 $this->info('Datos de HcMoneyStorageInfo enviados con éxito.');
@@ -184,7 +184,7 @@ class SendCasualDataCommand extends Command
     private function sendBetMoneyStorageData(ApiClient $apiClient, User $user, string $password)
     {
         $data = BetMoneyStorage::all()->toArray(); // Convertir a array para enviar
-        Log::info('Datos a enviar de BetMoneyStorage', ['data' => $data]);
+        //Log::info('Datos a enviar de BetMoneyStorage', ['data' => $data]);
 
         // Definir el prefijo como el nombre del modelo en minúsculas
         $prefijo = strtolower(class_basename(BetMoneyStorage::class)); // 'betmoneystorage'
@@ -193,11 +193,11 @@ class SendCasualDataCommand extends Command
         $prefixedData = [
             "{$prefijo}" => $data,
         ];
-        Log::notice($prefixedData);
+        //Log::notice($prefixedData);
 
         try {
             $response = $apiClient->sendData($user, $password, 'api/save-data-casual', $prefixedData);
-            Log::info('Respuesta del servidor', ['response' => $response]);
+            //Log::info('Respuesta del servidor', ['response' => $response]);
 
             if ($response) {
                 $this->info('Datos de BetMoneyStorage enviados con éxito.');
@@ -212,7 +212,7 @@ class SendCasualDataCommand extends Command
     private function sendBetMoneyStorageInfoData(ApiClient $apiClient, User $user, string $password)
     {
         $data = BetMoneyStorageInfo::all()->toArray(); // Convertir a array para enviar
-        Log::info('Datos a enviar de BetMoneyStorageInfo', ['data' => $data]);
+        //Log::info('Datos a enviar de BetMoneyStorageInfo', ['data' => $data]);
 
         // Definir el prefijo como el nombre del modelo en minúsculas
         $prefijo = strtolower(class_basename(BetMoneyStorageInfo::class)); // 'betmoneystorageinfo'
@@ -221,11 +221,11 @@ class SendCasualDataCommand extends Command
         $prefixedData = [
             "{$prefijo}" => $data,
         ];
-        Log::notice($prefixedData);
+        //Log::notice($prefixedData);
 
         try {
             $response = $apiClient->sendData($user, $password, 'api/save-data-casual', $prefixedData);
-            Log::info('Respuesta del servidor', ['response' => $response]);
+            //Log::info('Respuesta del servidor', ['response' => $response]);
 
             if ($response) {
                 $this->info('Datos de BetMoneyStorageInfo enviados con éxito.');
@@ -241,7 +241,7 @@ class SendCasualDataCommand extends Command
     private function sendConfigData(ApiClient $apiClient, User $user, string $password)
     {
         $data = Config::all()->toArray(); // Convertir a array para enviar
-        Log::info('Datos a enviar de Config', ['data' => $data]);
+        //Log::info('Datos a enviar de Config', ['data' => $data]);
 
         // Definir el prefijo como el nombre del modelo en minúsculas
         $prefijo = strtolower(class_basename(Config::class)); // 'config'
@@ -250,11 +250,11 @@ class SendCasualDataCommand extends Command
         $prefixedData = [
             "{$prefijo}" => $data,
         ];
-        Log::notice($prefixedData);
+        //Log::notice($prefixedData);
 
         try {
             $response = $apiClient->sendData($user, $password, 'api/save-data-casual', $prefixedData);
-            Log::info('Respuesta del servidor', ['response' => $response]);
+            //Log::info('Respuesta del servidor', ['response' => $response]);
 
             if ($response) {
                 $this->info('Datos de Config enviados con éxito.');
@@ -269,7 +269,7 @@ class SendCasualDataCommand extends Command
     private function sendSessionsData(ApiClient $apiClient, User $user, string $password)
     {
         $data = Session::all()->toArray(); // Convertir a array para enviar
-        Log::info('Datos a enviar de Session', ['data' => $data]);
+        //Log::info('Datos a enviar de Session', ['data' => $data]);
 
         // Definir el prefijo como el nombre del modelo en minúsculas
         $prefijo = strtolower(class_basename(Session::class)); // 'session'
@@ -278,11 +278,11 @@ class SendCasualDataCommand extends Command
         $prefixedData = [
             "{$prefijo}" => $data,
         ];
-        Log::notice($prefixedData);
+        //Log::notice($prefixedData);
 
         try {
             $response = $apiClient->sendData($user, $password, 'api/save-data-casual', $prefixedData);
-            Log::info('Respuesta del servidor', ['response' => $response]);
+            //Log::info('Respuesta del servidor', ['response' => $response]);
 
             if ($response) {
                 $this->info('Datos de Session enviados con éxito.');

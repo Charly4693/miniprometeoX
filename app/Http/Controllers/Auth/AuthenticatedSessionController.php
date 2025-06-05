@@ -12,6 +12,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Jobs\ObtenerDatosTablaAcumulados;
+use App\Jobs\MoneySynchronizationJob;
+use Illuminate\Support\Facades\Cache;
+
 
 class AuthenticatedSessionController extends Controller
 {

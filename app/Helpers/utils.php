@@ -17,14 +17,14 @@ use Illuminate\Support\Facades\Cache;
 
 // IP y Puerto prometeo Principal
 
-define('PROMETEO_PRINCIPAL_IP', "192.168.1.41");
-define('PROMETEO_PRINCIPAL_PORT', "8000");
+define('PROMETEO_PRINCIPAL_IP', "80.28.98.247");
+define('PROMETEO_PRINCIPAL_PORT', "1010");
 
 // Funciones para manejar el estado de las conexiones
 // variable $estadoConexiones - es array con estados
 function setEstadoConexiones($estadoConexiones)
 {
-    Log::info('utils:', $estadoConexiones);
+    //Log::info('utils:', $estadoConexiones);
     Cache::put('conexiones', $estadoConexiones);
 }
 
@@ -92,7 +92,7 @@ function nuevaConexionLocal($name)
     }
 
     $passDecrypt = Crypt::decryptString($user->password);
-    Log::info($passDecrypt);
+    //Log::info($passDecrypt);
     DB::purge($connectionName);
 
     try {
@@ -108,7 +108,7 @@ function nuevaConexionLocal($name)
 
         $config = config('database.connections' . $database);
     } catch (\Exception $e) {
-        Log::info($e);
+        Log::error($e);
     }
 
     return $connectionName;
@@ -203,7 +203,7 @@ function getCompany()
         if ($company) return $company->name;
         else return null;
     } catch (\Exception $e) {
-        Log::info($e);
+        Log::error($e);
         return null;
     }
 }
@@ -213,7 +213,7 @@ function getCompany()
 // @return array [resultado de comprobación, error]
 function compartirSerialNumber($serialNumberProcessor, $local_id)
 {
-    Log::notice('Compartir serial number ' . $serialNumberProcessor . ' --- ' . $local_id);
+    //Log::notice('Compartir serial number ' . $serialNumberProcessor . ' --- ' . $local_id);
     try {
 
         // Probar conexiones con prometeo
@@ -222,10 +222,10 @@ function compartirSerialNumber($serialNumberProcessor, $local_id)
         $local = Local::find($local_id);
         $url = 'http://' . PROMETEO_PRINCIPAL_IP . ':' . PROMETEO_PRINCIPAL_PORT . '/api/verify-licence-company';
 
-        Log::notice($local_id);
-        Log::notice($serialNumberProcessor);
-        Log::notice($company);
-        Log::notice($local);
+        //Log::notice($local_id);
+        //Log::notice($serialNumberProcessor);
+        //Log::notice($company);
+        //Log::notice($local);
 
 
         try {
@@ -235,10 +235,10 @@ function compartirSerialNumber($serialNumberProcessor, $local_id)
                 'company' => $company->name,
                 'local_name' => $local->name
             ]);
-            Log::notice($response->body());
+            //Log::notice($response->body());
         } catch (\Exception $e) {
 
-            Log::info($e);
+            Log::error($e);
         }
 
         $result = $response->json();
@@ -254,7 +254,7 @@ function compartirSerialNumber($serialNumberProcessor, $local_id)
             return [false, $error];
         }
     } catch (\Illuminate\Database\QueryException $ex) {
-        Log::info($ex);
+        Log::error($ex);
         $error = "No hay conexión.";
         return [false, $error];
     } catch (\Exception $exception) {

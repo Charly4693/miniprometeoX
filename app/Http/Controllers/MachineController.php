@@ -173,12 +173,12 @@ class MachineController extends Controller
         $machine_acumulado = Acumulado::where('machine_id', $id_machine)->first();
 
         if (!$machine_acumulado) {
-            Log::warning("⚠ No se encontró la máquina en acumulados", ['id_machine' => $id_machine]);
+            //Log::warning("⚠ No se encontró la máquina en acumulados", ['id_machine' => $id_machine]);
             return back()->with('error', 'No se encontró la máquina asociada a ninguna placa.');
         }
 
         $NumPlaca = $machine_acumulado->NumPlaca;
-        Log::info("✅ NumPlaca encontrado en acumulados: $NumPlaca");
+        //Log::info("✅ NumPlaca encontrado en acumulados: $NumPlaca");
 
         // 2. Conectar a la BD externa
         $conexion = nuevaConexionLocal('admin');
@@ -190,7 +190,7 @@ class MachineController extends Controller
             ->first();
 
         if (!$acumuladoExterno) {
-            Log::warning("⚠ No se encontró NumPlaca en la tabla acumulado de la BD externa", ['NumPlaca' => $NumPlaca]);
+            //Log::warning("⚠ No se encontró NumPlaca en la tabla acumulado de la BD externa", ['NumPlaca' => $NumPlaca]);
             return redirect()->route('machines.index', $request->delegation_id)
                 ->with('error', 'No se encontró la máquina en la tabla acumulado de la BD externa.');
         }
@@ -223,13 +223,13 @@ class MachineController extends Controller
                         ->table('nombres')
                         ->where('NumPlaca', $NumPlaca)
                         ->update($datosActualizar);
-                    Log::info("✅ Registro actualizado en nombres de la BD externa", ['NumPlaca' => $NumPlaca]);
+                    //Log::info("✅ Registro actualizado en nombres de la BD externa", ['NumPlaca' => $NumPlaca]);
                 } else {
                     // Si no existe, insertamos
                     DB::connection($conexion)
                         ->table('nombres')
                         ->insert($datosActualizar);
-                    Log::info("✅ Registro insertado en nombres de la BD externa", ['NumPlaca' => $NumPlaca]);
+                    //Log::info("✅ Registro insertado en nombres de la BD externa", ['NumPlaca' => $NumPlaca]);
                 }
 
                 // Enviar datos a la BD externa
@@ -296,7 +296,7 @@ class MachineController extends Controller
     {
 
         //dd($request->all());
-        Log::info('🔹 Iniciando sendAuxiliares...');
+        //Log::info('🔹 Iniciando sendAuxiliares...');
 
         // Validar entrada
         $request->validate([
@@ -310,7 +310,7 @@ class MachineController extends Controller
         $password = escapeshellarg($request->input('password'));
         $ip = $request->input('ip_address');
 
-        Log::info("🔹 IP recibida: {$ip}");
+        //Log::info("🔹 IP recibida: {$ip}");
 
         // 🔹 Definir rutas
         $driveLetter = "Z:"; // Puedes cambiarla si está en uso
@@ -320,21 +320,21 @@ class MachineController extends Controller
         // 🔹 Desmontar unidad si ya está conectada
         exec("net use {$driveLetter} /delete /y");
         exec("dir {$driveLetter}", $output);
-        Log::info("🔹 Contenido de {$driveLetter}: " . implode("\n", $output));
+        //Log::info("🔹 Contenido de {$driveLetter}: " . implode("\n", $output));
 
         // 🔹 Conectar unidad de red con credenciales
         $command = "net use {$driveLetter} \"{$networkPath}\" /user:{$username} {$password}";
-        Log::info("🔹 Ejecutando comando: {$command}");
+        //Log::info("🔹 Ejecutando comando: {$command}");
 
         exec($command, $output, $result);
-        Log::info("🔹 Salida del comando: " . implode("\n", $output));
+        //Log::info("🔹 Salida del comando: " . implode("\n", $output));
 
         if ($result !== 0) {
             Log::error("❌ Error al conectar la carpeta compartida. Código: {$result}");
             return back()->with('error', 'No se pudo conectar a la carpeta compartida. Verifica las credenciales.');
         }
 
-        Log::info("✅ Conectado a la carpeta compartida en {$driveLetter}");
+        //Log::info("✅ Conectado a la carpeta compartida en {$driveLetter}");
 
         // 🔹 Verificar que la unidad está montada correctamente
         if (!File::exists($driveLetter)) {
@@ -368,7 +368,7 @@ class MachineController extends Controller
             // 🔹 Obtener todas las máquinas con r_auxiliar
             $machines = Machine::whereNotNull('r_auxiliar')->get();
             $existingAliases = $machines->pluck('alias')->toArray();
-            Log::info("🔹 Máquinas encontradas: " . count($machines));
+            //Log::info("🔹 Máquinas encontradas: " . count($machines));
 
             // 🔹 Cargar el XML en DOMDocument
             $dom = new \DOMDocument('1.0', 'UTF-8');
@@ -376,7 +376,7 @@ class MachineController extends Controller
             $dom->formatOutput = true;
             $dom->load($sharedPath);
 
-            Log::info("🔹 XML cargado correctamente");
+            //Log::info("🔹 XML cargado correctamente");
 
             // 🔹 Obtener el elemento raíz
             $xpath = new \DOMXPath($dom);
@@ -391,18 +391,18 @@ class MachineController extends Controller
                 if ($assign instanceof \DOMElement) { // Asegurar que es un DOMElement
                     $keyNode = $assign->getElementsByTagName('Key')->item(0);
                     if ($keyNode && !in_array($keyNode->nodeValue, $existingAliases)) {
-                        Log::info("❌ Eliminando nodo huérfano: {$keyNode->nodeValue}");
+                        //Log::info("❌ Eliminando nodo huérfano: {$keyNode->nodeValue}");
                         $assign->parentNode->removeChild($assign);
                         $removedNodes++;
                     }
                 }
             }
 
-            Log::info("✅ Eliminados {$removedNodes} nodos huérfanos.");
+            //Log::info("✅ Eliminados {$removedNodes} nodos huérfanos.");
 
             // Si no existe, crearlo después de </Aux10Concepts>
             if (!$assignToAux) {
-                Log::warning("⚠️ AssignToAux no encontrado, creando el nodo en la posición correcta...");
+                //Log::warning("⚠️ AssignToAux no encontrado, creando el nodo en la posición correcta...");
 
                 // Encontrar <Aux10Concepts> y su nodo siguiente
                 $aux10Concepts = $xpath->query('//Aux10Concepts')->item(0);
@@ -420,7 +420,7 @@ class MachineController extends Controller
                             $aux10Concepts->parentNode->appendChild($assignToAux);
                         }
                     }
-                    Log::info("✅ Nodo AssignToAux creado correctamente.");
+                    //Log::info("✅ Nodo AssignToAux creado correctamente.");
                 } else {
                     throw new \Exception("No se encontró el nodo <Aux10Concepts> en el XML.");
                 }
@@ -431,14 +431,14 @@ class MachineController extends Controller
 
             foreach ($machines as $machine) {
                 $found = false;
-                Log::info("🔹 Procesando máquina: {$machine->alias} - r_auxiliar: {$machine->r_auxiliar}");
+                //Log::info("🔹 Procesando máquina: {$machine->alias} - r_auxiliar: {$machine->r_auxiliar}");
 
                 foreach ($entries as $assign) {
                     if ($assign instanceof \DOMElement) { // Asegurar que es un DOMElement
                         $keyNode = $assign->getElementsByTagName('Key')->item(0);
                         if ($keyNode && $keyNode->nodeValue === $machine->alias) {
                             // Si encontramos la máquina, actualizamos su valor
-                            Log::info("✅ Actualizando alias {$machine->alias} con r_auxiliar {$machine->r_auxiliar}");
+                            //Log::info("✅ Actualizando alias {$machine->alias} con r_auxiliar {$machine->r_auxiliar}");
 
                             // Intentamos obtener el nodo <Value>
                             $valueNode = $assign->getElementsByTagName('Value')->item(0);
@@ -459,7 +459,7 @@ class MachineController extends Controller
 
                 // Si no existe, agregar nuevo nodo <CAssignToAux>
                 if (!$found) {
-                    Log::info("➕ Añadiendo nueva entrada para {$machine->alias}");
+                    //Log::info("➕ Añadiendo nueva entrada para {$machine->alias}");
 
                     $newEntry = $dom->createElement('CAssignToAux');
                     $newEntry->appendChild($dom->createElement('Key', $machine->alias));
@@ -479,7 +479,7 @@ class MachineController extends Controller
                 throw new \Exception("El archivo temporal no se creó correctamente.");
             }
 
-            Log::info("✅ Archivo temporal creado en: {$tempPath}");
+            //Log::info("✅ Archivo temporal creado en: {$tempPath}");
 
             // 🔹 Copiar el archivo temporal al destino final
             File::copy($tempPath, $sharedPath);
@@ -489,7 +489,7 @@ class MachineController extends Controller
                 throw new \Exception("El archivo XML no se copió correctamente al destino.");
             }
 
-            Log::info("✅ Archivo XML actualizado correctamente en {$sharedPath}");
+            //Log::info("✅ Archivo XML actualizado correctamente en {$sharedPath}");
 
             // 🔹 Eliminar el archivo temporal
             File::delete($tempPath);

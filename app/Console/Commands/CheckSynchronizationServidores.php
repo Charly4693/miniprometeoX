@@ -40,6 +40,7 @@ class CheckSynchronizationServidores extends Command
         // Probar conexiones con prometeo
         $urlPrometeo = User::where('name', 'prometeo')->first();
         $url = 'http://' .  $urlPrometeo->ip . ':' . $urlPrometeo->port . '/api/checkConexion';
+        //Log::error($url);
         try {
             $conPrometeo = Http::get($url);
             if ($conPrometeo) {
@@ -47,7 +48,7 @@ class CheckSynchronizationServidores extends Command
             }
         } catch (\Exception $e) {
 
-            Log::info($e);
+            Log::error($e);
         }
         //$this-> changeDatosConexiones ($conexiones);
         // Probamos otro conexiones
@@ -96,18 +97,18 @@ class CheckSynchronizationServidores extends Command
         try {
             $config = config('database.connections.' . $nameConexion);
 
-            Log::info("?? Verificando conexión: {$nameConexion}");
-            Log::info("?? Detalles de conexión:", [
+            //Log::info("?? Verificando conexión: {$nameConexion}");
+            /*Log::info("?? Detalles de conexión:", [
                 'host' => $config['host'] ?? null,
                 'port' => $config['port'] ?? null,
                 'database' => $config['database'] ?? null,
                 'username' => $config['username'] ?? null,
                 'password' => $config['password'] ?? 'NO DEFINIDA',
                 'driver' => $config['driver'] ?? null
-            ]);
+            ]);*/
 
             DB::connection($nameConexion)->select('SELECT 1');
-            Log::info("? Conexión exitosa: {$nameConexion}");
+            //Log::info("? Conexión exitosa: {$nameConexion}");
 
             return true;
         } catch (\Exception $e) {

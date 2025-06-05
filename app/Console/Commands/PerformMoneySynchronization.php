@@ -93,10 +93,10 @@ class PerformMoneySynchronization extends Command
                 })
                 ->get();
             // dd($logs);
-            Log::info($tickets);
-            Log::info($logs);
-            Log::info($collectinfo);
-            Log::info($auxmoneystorageinfo);
+            //Log::info($tickets);
+            //Log::info($logs);
+            //Log::info($collectinfo);
+            //Log::info($auxmoneystorageinfo);
 
 
             // TABLAS PARA PARA INSERETAR DATOS O ACTUALIZARLOS, SEUGUN SI HAY CAMBIOS O NO
@@ -130,7 +130,7 @@ class PerformMoneySynchronization extends Command
                                 'updated_at' => now(),
                             ]);
 
-                        Log::info('Registro actualizado en collects: id=' . $existingRecord->id . ', local_id=' . $local->id . ', LocationType=' . $item->LocationType . ', UserMoney=' . $machine);
+                        //Log::info('Registro actualizado en collects: id=' . $existingRecord->id . ', local_id=' . $local->id . ', LocationType=' . $item->LocationType . ', UserMoney=' . $machine);
                     } else {
                         // Insertar nuevo registro
                         DB::table('collects')->insert([
@@ -146,7 +146,7 @@ class PerformMoneySynchronization extends Command
                             'updated_at' => now(),
                         ]);
 
-                        Log::info('Nuevo registro insertado en collects: local_id=' . $local->id . ', LocationType=' . $item->LocationType . ', UserMoney=' . $machine);
+                        //Log::info('Nuevo registro insertado en collects: local_id=' . $local->id . ', LocationType=' . $item->LocationType . ', UserMoney=' . $machine);
                     }
                 }
                 //dd($collectDetails);
@@ -175,7 +175,7 @@ class PerformMoneySynchronization extends Command
                                 'updated_at' => now(),
                             ]);
 
-                        Log::info('Registro actualizado en collectdetails: id=' . $existingDetail->id . ', local_id=' . $local->id . ', CollectDetailType=' . $item->CollectDetailType . ', UserMoney=' . $userMoney);
+                        //Log::info('Registro actualizado en collectdetails: id=' . $existingDetail->id . ', local_id=' . $local->id . ', CollectDetailType=' . $item->CollectDetailType . ', UserMoney=' . $userMoney);
                     } else {
                         // Insertar nuevo registro
                         DB::table('collectdetails')->insert([
@@ -191,7 +191,7 @@ class PerformMoneySynchronization extends Command
                             'updated_at' => now(),
                         ]);
 
-                        Log::info('Nuevo registro insertado en collectdetails: local_id=' . $local->id . ', CollectDetailType=' . $item->CollectDetailType . ', UserMoney=' . $userMoney);
+                        //Log::info('Nuevo registro insertado en collectdetails: local_id=' . $local->id . ', CollectDetailType=' . $item->CollectDetailType . ', UserMoney=' . $userMoney);
                     }
                 }
 
@@ -248,7 +248,7 @@ class PerformMoneySynchronization extends Command
                                     'updated_at' => now(),
                                 ]);
 
-                            Log::info('Ticket actualizado: local_id=' . $local->id . ', TicketNumber=' . $ticket->TicketNumber);
+                            //Log::info('Ticket actualizado: local_id=' . $local->id . ', TicketNumber=' . $ticket->TicketNumber);
                         } else {
                             // Insertar un nuevo registro
                             DB::table('tickets')->insert([
@@ -293,7 +293,7 @@ class PerformMoneySynchronization extends Command
                                 'updated_at' => now(),
                             ]);
 
-                            Log::info('Nuevo ticket insertado: local_id=' . $local->id . ', TicketNumber=' . $ticket->TicketNumber);
+                            //Log::info('Nuevo ticket insertado: local_id=' . $local->id . ', TicketNumber=' . $ticket->TicketNumber);
                         }
 
                         DB::commit();
@@ -329,7 +329,7 @@ class PerformMoneySynchronization extends Command
                                     'updated_at' => now(),
                                 ]);
 
-                            Log::info('Registro actualizado en logs: local_id=' . $local->id . ', DateTime=' . $item->DateTime);
+                            //Log::info('Registro actualizado en logs: local_id=' . $local->id . ', DateTime=' . $item->DateTime);
                         } else {
                             // Insertar un nuevo registro
                             DB::table('logs')->insert([
@@ -345,7 +345,7 @@ class PerformMoneySynchronization extends Command
                                 'updated_at' => now(),
                             ]);
 
-                            Log::info('Nuevo registro en logs insertado: local_id=' . $local->id . ', DateTime=' . $item->DateTime);
+                            //Log::info('Nuevo registro en logs insertado: local_id=' . $local->id . ', DateTime=' . $item->DateTime);
                         }
 
                         DB::commit();
@@ -419,13 +419,13 @@ class PerformMoneySynchronization extends Command
                                 ->where('User', $user->User)
                                 ->update($userData);
 
-                            Log::info('Registro actualizado en users_ticket_server: User=' . $user->User);
+                            //Log::info('Registro actualizado en users_ticket_server: User=' . $user->User);
                             $user_id = $existingRecord->id;
                         } else {
                             // Insertar un nuevo registro en 'users_ticket_server'
                             $user_id = DB::table('users_ticket_server')->insertGetId(array_merge($userData, ['User' => $user->User, 'created_at' => now()]));
 
-                            Log::info('Nuevo registro insertado en users_ticket_server: User=' . $user->User);
+                            //Log::info('Nuevo registro insertado en users_ticket_server: User=' . $user->User);
                         }
 
                         // Verificar y guardar la relación en 'usersmc_locals'

@@ -339,9 +339,11 @@ class PerformMoneySynchronizationConfig extends Command
                 echo "Datos sincronizados correctamente.";
             } catch (Exception $e) {
                 DB::rollBack();
+                Log::error($e);
                 echo "Error al insertar los datos: " . $e->getMessage();
             }
         } catch (Exception $e) {
+            Log::error($e);
             echo "Error al conectar a la base de datos: " . $e->getMessage();
         }
     }

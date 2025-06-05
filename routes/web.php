@@ -102,7 +102,7 @@ Route::post('/test-connection', function (Request $request) {
     $password = escapeshellarg($request->input('password'));
     $ip = $request->input('ip_address');
 
-    Log::info("🔹 Probando conexión con IP: {$ip}");
+    //Log::info("🔹 Probando conexión con IP: {$ip}");
 
     $driveLetter = "Z:";
     $networkPath = "\\\\{$ip}\\Gistra";

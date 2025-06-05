@@ -36,7 +36,7 @@ class PerformSyncTypesTickets extends Command
 
         try {
             DB::connection($connectionName)->beginTransaction();
-            Log::info("Conexión establecida y transacción iniciada.", ['conexion' => $connectionName]);
+            //Log::info("Conexión establecida y transacción iniciada.", ['conexion' => $connectionName]);
 
             // Obtener los tipos de máquinas sin usar GROUP BY
             $tipos = Machine::select('alias')->distinct()->get();
@@ -51,7 +51,7 @@ class PerformSyncTypesTickets extends Command
             }
 
             DB::connection($connectionName)->commit();
-            Log::info("Sincronización completada exitosamente.");
+            //Log::info("Sincronización completada exitosamente.");
 
             return 0; // Éxito
         } catch (\Exception $e) {
@@ -102,13 +102,13 @@ class PerformSyncTypesTickets extends Command
             ->exists();
 
         if ($existingTicket) {
-            Log::info("Ya existe un ticket con el Type '{$tipo->alias}', no se insertará otro.");
+            //Log::info("Ya existe un ticket con el Type '{$tipo->alias}', no se insertará otro.");
             return;
         }
 
         try {
             DB::connection($database)->table('tickets')->insert($insertData);
-            Log::info("Ticket insertado correctamente en la base de datos.", ['database' => $database, 'ticket' => $insertData]);
+            //Log::info("Ticket insertado correctamente en la base de datos.", ['database' => $database, 'ticket' => $insertData]);
         } catch (\Exception $e) {
             Log::error("Error al insertar ticket: " . $e->getMessage(), ['ticket' => $insertData]);
             throw $e;
