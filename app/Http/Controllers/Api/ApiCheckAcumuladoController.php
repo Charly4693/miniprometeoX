@@ -18,7 +18,7 @@ class ApiCheckAcumuladoController extends Controller
 {
     public function index()
     {
-        Log::info('🔍 Verificando caché antes de obtener conexiones checkAcumulados antes del metodo:', ['conexiones' => Cache::get('conexiones')]);
+        //Log::info('🔍 Verificando caché antes de obtener conexiones checkAcumulados antes del metodo:', ['conexiones' => Cache::get('conexiones')]);
 
 
         // Probamos si hay el mismo job en cola
@@ -43,7 +43,7 @@ class ApiCheckAcumuladoController extends Controller
 
         // Comprobamos estado de conexion con TicketServer
         $conexiones = getEstadoConexiones();   // resultados de ultimos prubos de conexiones
-        Log::info('Estado de conexiones ApiCheckAcumulado despues del metodo:', ['conexiones' => $conexiones]);
+        //Log::info('Estado de conexiones ApiCheckAcumulado despues del metodo:', ['conexiones' => $conexiones]);
 
         if ($conexiones[1] === false) desconectMachines(); // si no hay conexiones con COMDATA - desconectamos machines en tabla acumulados
 

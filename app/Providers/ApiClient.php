@@ -19,10 +19,10 @@ class ApiClient
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
 
-        logger()->info('ApiClient inicializado.', [
+        /*logger()->info('ApiClient inicializado.', [
             'baseUrl' => $this->baseUrl,
             'clientId' => $this->clientId,
-        ]);
+        ]);*/
     }
 
     /**
@@ -30,10 +30,10 @@ class ApiClient
      */
     public function sendData(User $user, string $password, string $endpoint, array $data)
     {
-        logger()->info('Preparando envío de datos al servidor.', [
+        /*logger()->info('Preparando envío de datos al servidor.', [
             'endpoint' => "{$this->baseUrl}/{$endpoint}",
             'data' => $data,
-        ]);
+        ]);*/
 
         $token = $this->getAccessToken($user, $password);
         //Log::info('FUERA DEL IF --------------- ' . $token);
@@ -52,10 +52,10 @@ class ApiClient
             $response = Http::withToken($token)->post("{$this->baseUrl}/{$endpoint}", $data);
 
             if ($response->successful()) {
-                logger()->info('Datos enviados con éxito.', [
+                /*logger()->info('Datos enviados con éxito.', [
                     'status' => $response->status(),
                     'response_body' => $response->body(),
-                ]);
+                ]);*/
                 return $response;
             }
 

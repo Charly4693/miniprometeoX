@@ -1,0 +1,327 @@
+ /**
+     * Obtener un token de acceso desde el servidor o usar el existente.
+     */
+    /*public function getAccessToken(User $user, string $password)
+    {
+
+        // Si ya existe un token válido
+        $existingToken = $user->tokens()->latest('created_at')->first();
+        //dd($existingToken);
+        logger()->info('Verificando si existe un token válido:', [
+            'existingToken' => $existingToken,
+        ]);
+
+        if ($existingToken && !$this->isTokenExpired($existingToken->expires_at)) {
+            logger()->info('Usando token de acceso existente.');
+            // dd('existe' . $existingToken->plainTextToken);
+
+            return $existingToken;
+        }
+
+        // dd(' no existe' . $existingToken);
+
+
+        // Solicitar un nuevo token al servidor
+        try {
+            logger()->info('Solicitando nuevo token de acceso para el usuario.', [
+                'email' => $user->email,
+            ]);
+
+            $response = Http::asForm()->post("{$this->baseUrl}/oauth/token", [
+                'grant_type' => 'password',
+                'client_id' => env('PASSPORT_CLIENT_ID'),
+                'client_secret' => env('PASSPORT_CLIENT_SECRET'),
+                'username' => $user->email, // o el campo que uses como nombre de usuario
+                'password' => 'Mini1234', // Usa la contraseña pasada como argumento
+            ]);
+            //dd($response);
+            // Agregar más logging aquí para ver la respuesta completa
+            /*dd('Solicitud de token enviada:', [
+                'url' => "{$this->baseUrl}/oauth/token",
+                'payload' => [
+                    'grant_type' => 'password',
+                    'client_id' => $this->clientId,
+                    'client_secret' => $this->clientSecret,
+                    'username' => $user->email,
+                    'password' => 'Mini1234', // Usa la contraseña pasada como argumento
+                ],
+            ]);
+            dd('Respuesta de la solicitud de token:', [
+                'status' => $response->status(),
+                'response_body' => $response->body(),
+            ]);
+
+            // Log para ver el código de estado y la respuesta completa
+    Log::info('Código de estado:', ['status' => $response->status()]);
+    Log::info('Respuesta del servidor:', ['body' => $response->body()]);
+
+            if ($response->successful()) {
+                dd('Token de acceso obtenido correctamente antes de data.');
+
+                $data = $response->json();
+                dd('Token de acceso obtenido correctamente.');
+
+                // Guardar el token en la base de datos (incluyendo refresh token)
+                $this->storeToken($user, $data['access_token'], $data['refresh_token'], $data['expires_in']);
+                dd($data);
+                return $data['access_token'];
+            } else {
+                dd('else');
+                logger()->error('Error al obtener el token de acceso.', [
+                    'status' => $response->status(),
+                    'response_body' => $response->body(),
+                ]);
+                return null;
+            }
+        } catch (\Exception $e) {
+            logger()->error('Excepción al intentar obtener el token de acceso.', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return null;
+        }
+
+        try {
+            Log::info('Solicitando nuevo token de acceso para el usuario.', [
+                'email' => $user->email,
+            ]);
+
+            $response = Http::asForm()->post("{$this->baseUrl}/oauth/token", [
+                'grant_type' => 'password',
+                'client_id' => env('PASSPORT_CLIENT_ID'),
+                'client_secret' => env('PASSPORT_CLIENT_SECRET'),
+                'username' => $user->email,
+                'password' => 'Mini1234',
+            ]);
+            //dd($response);
+            Log::info('Código de estado:', ['status' => $response->status()]);
+            Log::info('Respuesta del servidor:', ['body' => $response->body()]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                Log::info('Token de acceso obtenido correctamente.', $data);
+                //dd('if');
+
+                $this->storeToken($user, $data['access_token'], $data['refresh_token'], $data['expires_in']);
+                return $data['access_token'];
+            } else {
+                dd('else' . $response);
+
+                Log::error('Error al obtener el token de acceso.', [
+                    'status' => $response->status(),
+                    'response_body' => $response->body(),
+                ]);
+                return null;
+            }
+        } catch (\Exception $e) {
+            Log::error('Excepción al intentar obtener el token de acceso.', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return null;
+        }
+    }*/
+
+    /**
+     * Almacena el token y su fecha de expiración en la base de datos.
+     */
+    /*protected function storeToken(User $user, string $accessToken, string $refreshToken, int $expiresIn)
+    {
+        // Calcula la fecha de expiración
+        $expiresAt = now()->addSeconds($expiresIn);
+
+        // Revoca todos los tokens anteriores del usuario
+        $user->tokens()->where('revoked', false)->update(['revoked' => true]);
+
+        //dd($user->tokens());
+
+        // Crea el nuevo token
+        $token = $user->createToken('Client Access Token', ['*']);
+
+        dd($token);
+        // Almacena el access token, refresh token y la fecha de expiración en la base de datos
+        $tokenRecord = new Token(); // Asegúrate de usar el modelo correcto
+        $tokenRecord->user_id = $user->id; // Asigna el ID del usuario
+        $tokenRecord->token = $accessToken; // Guarda el access token
+        $tokenRecord->refresh_token = $refreshToken; // Guarda el refresh token
+        $tokenRecord->expires_at = $expiresAt; // Guarda la fecha de expiración
+        $tokenRecord->save(); // Guarda el registro
+
+        logger()->info('Token almacenado en la base de datos.', [
+            'expires_at' => $expiresAt,
+        ]);
+    }*/
+
+    /**
+     * Verifica si un token ha expirado.
+     */
+    /*private function isTokenExpired($expiresAt)
+    {
+        return $expiresAt ? now()->greaterThan($expiresAt) : true;
+    }
+
+    /**
+     * Enviar datos al servidor a través de un endpoint.
+     */
+    /*public function sendData(User $user, string $password, string $endpoint, array $data)
+    {
+        logger()->info('Preparando envío de datos al servidor.', [
+            'endpoint' => "{$this->baseUrl}/{$endpoint}",
+            'data' => $data,
+        ]);
+        //dd($this->getAccessToken($user, $password));
+        $token = $this->getAccessToken($user, $password);
+        //dd('send data ' . $token);
+        if ($token) {
+            try {
+                $response = Http::withToken($token)->post("{$this->baseUrl}/{$endpoint}", $data);
+
+                if ($response->successful()) {
+                    logger()->info('Datos enviados con éxito.', [
+                        'status' => $response->status(),
+                        'response_body' => $response->body(),
+                    ]);
+                    return $response;
+                } else {
+                    logger()->error('Error al enviar datos.', [
+                        'status' => $response->status(),
+                        'response_body' => $response->body(),
+                    ]);
+                    return null;
+                }
+            } catch (\Exception $e) {
+                logger()->error('Excepción al enviar datos.', [
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+            }
+        } else {
+            logger()->error('No se pudo obtener el token de acceso antes de enviar los datos.');
+        }
+
+        return null;
+    }*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * Obtener un token de acceso desde el servidor o usar el existente.
+     */
+    /*public function getAccessToken(User $user, string $password)
+    {
+        // Verifica si hay un token existente
+        $existingToken = $user->tokens()->latest('created_at')->first();
+
+        Log::info('Verificando si existe un token válido:', [
+            'existingToken' => $existingToken,
+        ]);
+
+        if ($existingToken && !$this->isTokenExpired($existingToken->expires_at)) {
+            Log::info('Usando token de acceso existente.');
+            return $existingToken->token; // Devuelve el token directamente
+        }
+
+        // Solicitar un nuevo token al servidor
+        try {
+            Log::info('Solicitando nuevo token de acceso para el usuario.', [
+                'email' => $user->email,
+            ]);
+
+            $response = Http::asForm()->post("{$this->baseUrl}/oauth/token", [
+                'grant_type' => 'password',
+                'client_id' => $this->clientId,
+                'client_secret' => $this->clientSecret,
+                'username' => $user->email,
+                'password' => $password, // Usa la contraseña pasada como argumento
+            ]);
+
+            Log::info('Código de estado:', ['status' => $response->status()]);
+            Log::info('Respuesta del servidor:', ['body' => $response->body()]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                Log::info('Token de acceso obtenido correctamente.', $data);
+
+                // Almacena el token en la base de datos
+                //$this->storeToken($user, $data['access_token'], $data['refresh_token'], $data['expires_in']);
+
+                return $data['access_token'];
+            } else {
+                Log::error('Error al obtener el token de acceso.', [
+                    'status' => $response->status(),
+                    'response_body' => $response->body(),
+                ]);
+                return null; // Manejo de error
+            }
+        } catch (\Exception $e) {
+            Log::error('Excepción al intentar obtener el token de acceso.', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return null; // Manejo de excepción
+        }
+    }
+
+    /**
+     * Almacena el token y su fecha de expiración en la base de datos.
+     */
+    /* protected function storeToken(User $user, string $accessToken, string $refreshToken, int $expiresIn)
+    {
+        // Calcula la fecha de expiración
+        $expiresAt = now()->addSeconds($expiresIn);
+
+        // Revoca todos los tokens anteriores del usuario
+        $user->tokens()->where('revoked', false)->update(['revoked' => true]);
+
+        // Usa el token de acceso pasado como argumento, en lugar de crear uno nuevo
+        $user->tokens()->create([
+            'token' => hash('sha256', $accessToken), // Passport almacena tokens hasheados
+            'refresh_token' => $refreshToken,
+            'expires_at' => $expiresAt,
+            'revoked' => false,
+        ]);
+
+        Log::info('Token almacenado en la base de datos.', [
+            'expires_at' => $expiresAt,
+        ]);
+    }
+
+
+    /**
+     * Verifica si un token ha expirado.
+     */
+    /* private function isTokenExpired($expiresAt)
+    {
+        return $expiresAt ? now()->greaterThan($expiresAt) : true;
+    }

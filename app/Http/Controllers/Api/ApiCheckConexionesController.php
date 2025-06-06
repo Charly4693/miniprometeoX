@@ -14,7 +14,7 @@ class ApiCheckConexionesController extends Controller
     public function index()
     {
 
-        Log::info('🔍 Verificando caché antes de obtener conexiones chekConexiones antes del metodo:', ['conexiones' => Cache::get('conexiones')]);
+        //Log::info('🔍 Verificando caché antes de obtener conexiones chekConexiones antes del metodo:', ['conexiones' => Cache::get('conexiones')]);
 
         // Verifica si el job ya está en ejecución
         $isDuplicate = buscarJob('App\\Jobs\\TestConexionaes');
@@ -24,7 +24,7 @@ class ApiCheckConexionesController extends Controller
 
         // Obtener estados de conexión y tiempo de última conexión
         $conexiones = getEstadoConexiones();
-        Log::info('Estado de conexiones ApiCheckConexiones despues del metodo:', ['conexiones' => $conexiones]);
+        //Log::info('Estado de conexiones ApiCheckConexiones despues del metodo:', ['conexiones' => $conexiones]);
 
         $lastTimeConexiones = getTimeConexiones();
 

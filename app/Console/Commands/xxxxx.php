@@ -1,5 +1,5 @@
 <?php
-
+/*
 namespace App\Console\Commands;
 
 use \Exception;
@@ -13,49 +13,43 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class PerformMoneySynchronizationEveryTime extends Command
+class xxxxx extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'miniprometeo:perform-money-synchronization-every-time';
+    //protected $signature = 'miniprometeo:perform-money-synchronization-every-time';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Script que sincroniza los datos de las máquinas de cambio de los locales se ejecutara cada 30seg 1min +o-';
+    /*protected $description = 'Script que sincroniza los datos de las máquinas de cambio de los locales se ejecutara cada 30seg 1min +o-';
 
 
     /**
      * Execute the console command.
      */
-    public function handle()
+   /* public function handle()
     {
-        Log::info('Entrando a handle');
-
         $local = Local::first();
-        if (!$local) {
-            Log::error('No se encontró ningún local.');
-            return;
-        }
 
-        Log::info('Local encontrado: ' . $local->name); // o cualquier campo
         $this->connectToTicketServer($local);
     }
 
     protected function connectToTicketServer(Local $local): void
     {
+        //Log::info('88888888888888888888888888888888888888888888888888888888888888888888888888888888');
         $connectionName = nuevaConexionLocal('ccm');
-        Log::info($connectionName);
 
         try {
             // Purgar la conexión y obtener el PDO
             DB::purge($connectionName);
             DB::connection($connectionName)->getPdo();
+
             // fecha para logs y tickets
             $fechaLimite = Carbon::now()->subDays(15);
 
@@ -65,18 +59,18 @@ class PerformMoneySynchronizationEveryTime extends Command
             $collectinfo = DB::connection($connectionName)->table('collectinfo')->get();
             $auxmoneystorageinfo = DB::connection($connectionName)->table('auxmoneystorageinfo')->get();
 
-            // COLLECT con los cambios sugeridos de gpt y para calcular los tiempo
-            $startCollects = microtime(true);
 
-            $insertedCount = 0;
-            $updatedCount = 0;
+            // TABLAS PARA PARA INSERETAR DATOS O ACTUALIZARLOS, SEUGUN SI HAY CAMBIOS O NO
+
 
             DB::beginTransaction();
             try {
+                // INSERT OR UPDATE para la tabla collects
                 foreach ($collects as $item) {
+                    // Usar el valor de Machine directamente ya que no es un array
                     $machine = $item->Machine;
 
-                    // Buscar registro existente
+                    // Buscar registro existente basándose en la combinación de local_id, LocationType, MoneyType, MoneyValue, State, y UserMoney
                     $existingRecord = DB::table('collects')
                         ->where('local_id', $local->id)
                         ->where('LocationType', $item->LocationType)
@@ -87,68 +81,50 @@ class PerformMoneySynchronizationEveryTime extends Command
                         ->first();
 
                     if ($existingRecord) {
-                        // Actualizar solo si cambia algo
-                        if (
-                            $existingRecord->Quantity != $item->Quantity ||
-                            $existingRecord->Amount != $item->Amount ||
-                            $existingRecord->UserMoney != $machine
-                        ) {
-                            DB::table('collects')
-                                ->where('id', $existingRecord->id)
-                                ->update([
-                                    'Quantity' => $item->Quantity,
-                                    'Amount' => $item->Amount,
-                                    'UserMoney' => $machine,
-                                    'updated_at' => now(),
-                                ]);
-                            $updatedCount++;
-                        }
+                        // Actualizar registro existente
+                        DB::table('collects')
+                            ->where('id', $existingRecord->id)
+                            ->update([
+                                'Quantity' => $item->Quantity,
+                                'Amount' => $item->Amount,
+                                'UserMoney' => $machine,  // Actualizar UserMoney con el valor específico
+                                'updated_at' => now(),
+                            ]);
+
+                        //Log::info('Registro actualizado en collects: id=' . $existingRecord->id . ', local_id=' . $local->id . ', LocationType=' . $item->LocationType . ', UserMoney=' . $machine);
                     } else {
                         // Insertar nuevo registro
                         DB::table('collects')->insert([
-                            'local_id' => $local->id,
+                            'local_id' => $local->id,  // Insertar local_id
                             'LocationType' => $item->LocationType,
                             'MoneyType' => $item->MoneyType,
                             'MoneyValue' => $item->MoneyValue,
                             'Quantity' => $item->Quantity,
                             'Amount' => $item->Amount,
-                            'UserMoney' => $machine,
+                            'UserMoney' => $machine,  // Insertar UserMoney con el valor específico
                             'State' => $item->State,
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);
-                        $insertedCount++;
+
+                        //Log::info('Nuevo registro insertado en collects: local_id=' . $local->id . ', LocationType=' . $item->LocationType . ', UserMoney=' . $machine);
                     }
                 }
-
                 DB::commit();
-                $endCollects = microtime(true);
-                $durationCollects = $endCollects - $startCollects;
-                dump("Tiempo en procesar collects: {$durationCollects} segundos");
-                dump("Registros insertados: $insertedCount");
-                dump("Registros actualizados: $updatedCount");
-                Log::info("Proceso de collects tomó $durationCollects segundos para " . count($collects) . " registros");
-                Log::info("Registros insertados: $insertedCount");
-                Log::info("Registros actualizados: $updatedCount");
             } catch (Exception $e) {
                 DB::rollBack();
                 Log::error('Error al insertar los datos en la tabla COLLECTS', ['exception' => $e]);
             }
 
-
-
-            // COLLECDETAILS
-            $startCollectDetails = microtime(true);
-
-            $insertedCount = 0;
-            $updatedCount = 0;
-
             DB::beginTransaction();
             try {
+
+                // INSERT OR UPDATE para la tabla collectdetails
                 foreach ($collectDetails as $item) {
+                    // Usar el valor de UserMoney directamente ya que es un string
                     $userMoney = $item->Machine;
 
-                    // Buscar registro existente
+                    // Buscar registro existente basándose en la combinación de local_id, CollectDetailType, Name, y UserMoney
                     $existingDetail = DB::table('collectdetails')
                         ->where('local_id', $local->id)
                         ->where('CollectDetailType', $item->CollectDetailType)
@@ -157,29 +133,23 @@ class PerformMoneySynchronizationEveryTime extends Command
                         ->first();
 
                     if ($existingDetail) {
-                        // Solo actualizar si alguno de los campos ha cambiado
-                        if (
-                            $existingDetail->Money1 != $item->Money1 ||
-                            $existingDetail->Money2 != $item->Money2 ||
-                            $existingDetail->Money3 != $item->Money3 ||
-                            $existingDetail->State  != $item->State
-                        ) {
-                            DB::table('collectdetails')
-                                ->where('id', $existingDetail->id)
-                                ->update([
-                                    'Money1' => $item->Money1,
-                                    'Money2' => $item->Money2,
-                                    'Money3' => $item->Money3,
-                                    'State' => $item->State,
-                                    'updated_at' => now(),
-                                ]);
-                            $updatedCount++;
-                        }
+                        // Actualizar registro existente
+                        DB::table('collectdetails')
+                            ->where('id', $existingDetail->id)
+                            ->update([
+                                'Money1' => $item->Money1,
+                                'Money2' => $item->Money2,
+                                'Money3' => $item->Money3,
+                                'State' => $item->State,
+                                'updated_at' => now(),
+                            ]);
+
+                        //Log::info('Registro actualizado en collectdetails: id=' . $existingDetail->id  . ', CollectDetailType=' . $item->CollectDetailType . ', UserMoney=' . $userMoney);
                     } else {
                         // Insertar nuevo registro
                         DB::table('collectdetails')->insert([
-                            'local_id' => $local->id,
-                            'UserMoney' => $userMoney,
+                            'local_id' => $local->id,  // Insertar local_id
+                            'UserMoney' => $userMoney, // Insertar UserMoney
                             'CollectDetailType' => $item->CollectDetailType,
                             'Name' => $item->Name,
                             'Money1' => $item->Money1,
@@ -189,27 +159,19 @@ class PerformMoneySynchronizationEveryTime extends Command
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);
-                        $insertedCount++;
+
+                        //Log::info('Nuevo registro insertado en collectdetails: CollectDetailType=' . $item->CollectDetailType . ', UserMoney=' . $userMoney);
                     }
                 }
-
                 DB::commit();
-                $endCollectDetails = microtime(true);
-                $durationCollectDetails = $endCollectDetails - $startCollectDetails;
-                dump("Tiempo en procesar collectdetails: {$durationCollectDetails} segundos");
-                dump("Registros insertados: $insertedCount");
-                dump("Registros actualizados: $updatedCount");
-                Log::info("Proceso de collectdetails tomó $durationCollectDetails segundos para " . count($collectDetails) . " registros");
-                Log::info("Registros insertados: $insertedCount");
-                Log::info("Registros actualizados: $updatedCount");
             } catch (Exception $e) {
                 DB::rollBack();
                 Log::error('Error al insertar los datos en la tabla collectdetails', ['exception' => $e]);
             }
 
-
-            // TICKETS
-            $startTicketsSync = microtime(true);
+            // manejando los tickets, para ejecutarse cada 30sec o 1min
+            // solo se traera lo necesario para actualizar lo de la base de datos local
+            // y añadir lo que este pendiente en el servidor
 
             // Obtener el último ticket local sin importar su estado
             $ultimoTicketLocal = DB::table('tickets')
@@ -218,7 +180,7 @@ class PerformMoneySynchronizationEveryTime extends Command
                 ->first();
 
             // Obtener la fecha y hora del último ticket local
-            $fechaLimite = $ultimoTicketLocal ? $ultimoTicketLocal->DateTime : now()->subDays(15);
+            $fechaLimite = $ultimoTicketLocal ? $ultimoTicketLocal->DateTime : now()->subDays(15); // Si no hay tickets, toma hace 15 días
 
             // Convertir $fechaLimite al formato Y-m-d H:i:s si no está en ese formato
             $fechaLimite = $fechaLimite instanceof \DateTime ? $fechaLimite->format('Y-m-d H:i:s') : $fechaLimite;
@@ -227,6 +189,7 @@ class PerformMoneySynchronizationEveryTime extends Command
             $ticketsRemotosParaInsertar = DB::connection($connectionName)
                 ->table('tickets')
                 ->where('DateTime', '>', $fechaLimite)
+                //->where('DateTime', '>', $fechaLimite) // Obtener tickets generados después de la fecha del último ticket local
                 ->get();
 
             // Obtener tickets locales que no están marcados como 'EXTRACTED'
@@ -234,13 +197,18 @@ class PerformMoneySynchronizationEveryTime extends Command
                 ->where('Status', 'NOT LIKE', 'EXTRACTED%')
                 ->get();
 
+
+            // Iniciar la transacción
             DB::beginTransaction();
             try {
+                // Crear un array de TicketNumbers de los tickets locales para actualización
                 $localTicketNumbers = $ticketsLocalesParaActualizar->pluck('TicketNumber')->toArray();
 
+                // Contadores
                 $contadorActualizados = 0;
                 $contadorInsertados = 0;
 
+                // Comparar y actualizar tickets locales en función de los remotos
                 foreach ($ticketsLocalesParaActualizar as $ticketLocal) {
                     $ticketRemoto = DB::connection($connectionName)
                         ->table('tickets')
@@ -248,6 +216,7 @@ class PerformMoneySynchronizationEveryTime extends Command
                         ->first();
 
                     if ($ticketRemoto) {
+                        // Lista de campos a comparar, excluyendo los campos de fecha
                         $fields = [
                             'Command',
                             'Mode',
@@ -281,30 +250,34 @@ class PerformMoneySynchronizationEveryTime extends Command
                             'PersonalExtraData'
                         ];
 
+                        // Verificar si algún campo ha cambiado
                         $fieldsToUpdate = [];
                         foreach ($fields as $field) {
+                            // Comparar valores
                             if ($ticketLocal->$field != $ticketRemoto->$field) {
                                 $fieldsToUpdate[$field] = $ticketRemoto->$field;
                             }
                         }
 
+                        // Actualizar solo si hay campos diferentes
                         if (!empty($fieldsToUpdate)) {
+                            // Convertir campos de fecha del ticket remoto antes de actualizar
                             $fieldsToUpdate['DateTime'] = $this->convertDateTime($ticketRemoto->DateTime);
                             $fieldsToUpdate['LastCommandChangeDateTime'] = $this->convertDateTime($ticketRemoto->LastCommandChangeDateTime);
                             $fieldsToUpdate['UsedDateTime'] = $this->convertDateTime($ticketRemoto->UsedDateTime);
                             $fieldsToUpdate['ExpirationDate'] = $this->convertDateTime($ticketRemoto->ExpirationDate);
 
+                            // Evitar NULL en TypeIsAux
                             if (array_key_exists('TypeIsAux', $fieldsToUpdate) && is_null($fieldsToUpdate['TypeIsAux'])) {
                                 $fieldsToUpdate['TypeIsAux'] = 0;
                             }
 
                             $fieldsToUpdate['updated_at'] = now();
-
-                            DB::table('tickets')
-                                ->where('TicketNumber', $ticketRemoto->TicketNumber)
+                            DB::table('tickets')->where('TicketNumber', $ticketRemoto->TicketNumber)
+                                ->where('DateTime', $ticketRemoto->DateTime)
                                 ->update($fieldsToUpdate);
 
-                            $contadorActualizados++;
+                            $contadorActualizados++; // Incrementar el contador de tickets actualizados
                         }
                     }
                 }
@@ -312,6 +285,7 @@ class PerformMoneySynchronizationEveryTime extends Command
                 // Insertar nuevos tickets
                 foreach ($ticketsRemotosParaInsertar as $ticketRemoto) {
                     if (!in_array($ticketRemoto->TicketNumber, $localTicketNumbers)) {
+                        // Convertir campos de fecha del ticket remoto antes de insertar
                         DB::table('tickets')->insert([
                             'local_id' => $local->id,
                             'idMachine' => $local->idMachines,
@@ -354,46 +328,35 @@ class PerformMoneySynchronizationEveryTime extends Command
                             'updated_at' => now(),
                         ]);
 
-                        $contadorInsertados++;
+                        $contadorInsertados++; // Incrementar el contador de tickets insertados
                     }
                 }
 
+                // Mostrar los contadores
+                dump($local->name . ' Cantidad de tickets actualizados: ' . $contadorActualizados);
+                dump($local->name . ' Cantidad de nuevos tickets insertados: ' . $contadorInsertados);
+
                 DB::commit();
-
-                $endTicketsSync = microtime(true);
-                $durationTicketsSync = $endTicketsSync - $startTicketsSync;
-
-                dump("Tiempo en procesar tickets: {$durationTicketsSync} segundos");
-                dump("Tickets actualizados: {$contadorActualizados}");
-                dump("Tickets insertados: {$contadorInsertados}");
-
-                Log::info("Duración sincronización tickets local {$local->name}: {$durationTicketsSync} segundos");
-                Log::info("Sync tickets para local {$local->name}: Actualizados = {$contadorActualizados}, Insertados = {$contadorInsertados}");
             } catch (\Exception $e) {
                 DB::rollBack();
-                Log::error('Error al insertar/actualizar tickets', ['exception' => $e]);
+                Log::error('Error al insertar los datos en la tabla tickets', ['exception' => $e]);
             }
 
+            // los LOGS traremos lo necesario para mostrarlo
+            // Manejar logs funcionando bien
 
-            // LOGS
             // Obtener la última fecha de log en la base de datos local
-            $startLogs = microtime(true);
-
-            $insertedCount = 0;
-            $updatedCount = 0;
-
             $ultimaFechaLogLocal = DB::table('logs')
                 ->where('local_id', $local->id)
                 ->orderBy('DateTime', 'desc')
                 ->value('DateTime');
+            //dd($ultimaFechaLogLocal);
 
-            if (!$ultimaFechaLogLocal) {
-                $ultimaFechaLogLocal = now()->subDays(15)->format('Y-m-d H:i:s');
-            }
-
+            // Obtener los logs remotos con fecha superior a la última fecha de log local
             $logsRemotos = DB::connection($connectionName)
                 ->table('logs')
-                ->where('DateTime', '>', $ultimaFechaLogLocal)
+                ->where('DateTime', '>', $ultimaFechaLogLocal) // Traer solo logs posteriores
+                //->whereNotIn('Type', ['doorOpened', 'doorClosed', 'error', 'warning','powerOn', 'powerOff']) // Excluir estos tipos
                 ->where('Type', '!=', 'doorOpened')
                 ->where('Type', '!=', 'doorClosed')
                 ->where('Type', '!=', 'error')
@@ -401,97 +364,57 @@ class PerformMoneySynchronizationEveryTime extends Command
                 ->where('Type', '!=', 'powerOn')
                 ->where('Type', '!=', 'powerOff')
                 ->where(function ($query) {
+                    // Excluir 'movementChange' con 'TRETA' en el texto
                     $query->where('Type', '!=', 'movementChange')
                         ->orWhere(function ($query) {
                             $query->where('Type', '=', 'movementChange')
-                                ->where('Text', 'not like', '%TRETA%');
+                                ->where('Text', 'not like', '%TRETA%'); // Excluir solo ciertos 'movementChange'
                         });
                 })
                 ->where(function ($query) {
+                    // Excluir los 'log' donde el 'Text' contenga "Estado ticket"
                     $query->where('Type', '!=', 'log')
                         ->orWhere(function ($query) {
                             $query->where('Type', '=', 'log')
-                                ->where('Text', 'like', '%creado%')
-                                ->where('Text', 'not like', '%BETS%');
+                                ->where('Text', 'like', '%creado%') // Excluir "Estado ticket" en 'log'
+                                ->where('Text', 'not like', '%BETS%'); // Excluir "Ticket cerrado" en 'log'
                         });
                 })
                 ->get();
+            // dd($logsRemotos);
+            // Obtener la cantidad de logs a insertar
+            $cantidadLogsAInsertar = $logsRemotos->count();
+            dump('Cantidad de logs a insertar: ' . $cantidadLogsAInsertar);
+
 
             DB::beginTransaction();
             try {
                 foreach ($logsRemotos as $item) {
-                    // Buscar registro existente con clave única aproximada (local_id + DateTime + Type)
-                    $existingLog = DB::table('logs')
-                        ->where('local_id', $local->id)
-                        ->where('DateTime', $item->DateTime)
-                        ->where('Type', $item->Type)
-                        ->first();
-
-                    if ($existingLog) {
-                        // Actualizar solo si cambian campos relevantes
-                        if (
-                            $existingLog->Text !== $item->Text ||
-                            $existingLog->Link !== $item->Link ||
-                            $existingLog->DateTimeEx !== $item->DateTimeEx ||
-                            $existingLog->IP !== $item->IP ||
-                            $existingLog->User !== $item->User
-                        ) {
-                            DB::table('logs')
-                                ->where('id', $existingLog->id)
-                                ->update([
-                                    'Text' => $item->Text,
-                                    'Link' => $item->Link,
-                                    'DateTimeEx' => $item->DateTimeEx,
-                                    'IP' => $item->IP,
-                                    'User' => $item->User,
-                                    'updated_at' => now(),
-                                ]);
-                            $updatedCount++;
-                        }
-                    } else {
-                        // Insertar nuevo registro
-                        DB::table('logs')->insert([
-                            'local_id' => $local->id,
-                            'Type' => $item->Type,
-                            'Text' => $item->Text,
-                            'Link' => $item->Link,
-                            'DateTime' => $item->DateTime,
-                            'DateTimeEx' => $item->DateTimeEx,
-                            'IP' => $item->IP,
-                            'User' => $item->User,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
-                        $insertedCount++;
-                    }
+                    // Insertar un nuevo registro
+                    DB::table('logs')->insert([
+                        'local_id' => $local->id,
+                        'Type' => $item->Type,
+                        'Text' => $item->Text,
+                        'Link' => $item->Link,
+                        'DateTime' => $item->DateTime,
+                        'DateTimeEx' => $item->DateTimeEx,
+                        'IP' => $item->IP,
+                        'User' => $item->User,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
                 }
-
                 DB::commit();
-
-                $endLogs = microtime(true);
-                $durationLogs = $endLogs - $startLogs;
-
-                dump("Tiempo en procesar logs: {$durationLogs} segundos");
-                dump("Registros insertados: $insertedCount");
-                dump("Registros actualizados: $updatedCount");
-
-                Log::info("Proceso de logs tomó $durationLogs segundos para " . count($logsRemotos) . " registros");
-                Log::info("Registros insertados en logs: $insertedCount");
-                Log::info("Registros actualizados en logs: $updatedCount");
             } catch (\Exception $e) {
                 DB::rollBack();
-                Log::error('Error al insertar o actualizar logs', ['exception' => $e]);
+                Log::error('Error al insertar los datos en la tabla logs', ['exception' => $e]);
+
             }
 
+            // Manejar collectinfo funcionando bien
 
-            // COLLECTSINFO y AUSMONEYSTORAGEINFO
             DB::beginTransaction();
             try {
-                // ===== COLLECTINFO =====
-                $startCollectInfo = microtime(true);
-                $insertedCollect = 0;
-                $updatedCollect = 0;
-
                 foreach ($collectinfo as $item) {
                     $existingInfo = DB::table('collectinfo')
                         ->where('local_id', $local->id)
@@ -506,7 +429,6 @@ class PerformMoneySynchronizationEveryTime extends Command
                                     'LastUpdateDateTime' => $item->LastUpdateDateTime,
                                     'updated_at' => now(),
                                 ]);
-                            $updatedCollect++;
                         }
                     } else {
                         DB::table('collectinfo')->insert([
@@ -516,40 +438,24 @@ class PerformMoneySynchronizationEveryTime extends Command
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);
-                        $insertedCollect++;
                     }
                 }
 
-                $endCollectInfo = microtime(true);
-                $elapsedCollectInfo = $endCollectInfo - $startCollectInfo;
-
-                dump("Tiempo en procesar collectinfo: {$elapsedCollectInfo} segundos");
-                dump("Registros insertados en collectinfo: $insertedCollect");
-                dump("Registros actualizados en collectinfo: $updatedCollect");
-
-                Log::info("Proceso collectinfo tomó $elapsedCollectInfo segundos");
-                Log::info("Insertados: $insertedCollect | Actualizados: $updatedCollect");
-
-                // ===== AUXMONEYSTORAGEINFO =====
-                $startAuxMoney = microtime(true);
-                $insertedAux = 0;
-                $updatedAux = 0;
-
+                // Manejar auxmoneystorageinfo
                 foreach ($auxmoneystorageinfo as $item) {
                     $existingDetailsInfo = DB::table('auxmoneystorageinfo')
                         ->where('local_id', $local->id)
                         ->where('Machine', $item->Machine)
                         ->first();
 
-                    if ($existingDetailsInfo) {
-                        if ($existingDetailsInfo->LastUpdateDateTime != $item->LastUpdateDateTime) {
+                    if ($existingInfo) {
+                        if ($existingInfo->LastUpdateDateTime != $item->LastUpdateDateTime) {
                             DB::table('auxmoneystorageinfo')
-                                ->where('id', $existingDetailsInfo->id)
+                                ->where('id', $existingInfo->id)
                                 ->update([
                                     'LastUpdateDateTime' => $item->LastUpdateDateTime,
                                     'updated_at' => now(),
                                 ]);
-                            $updatedAux++;
                         }
                     } else {
                         DB::table('auxmoneystorageinfo')->insert([
@@ -559,25 +465,13 @@ class PerformMoneySynchronizationEveryTime extends Command
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);
-                        $insertedAux++;
                     }
                 }
-
-                $endAuxMoney = microtime(true);
-                $elapsedAuxMoney = $endAuxMoney - $startAuxMoney;
-
-                dump("Tiempo en procesar auxmoneystorageinfo: {$elapsedAuxMoney} segundos");
-                dump("Registros insertados en auxmoneystorageinfo: $insertedAux");
-                dump("Registros actualizados en auxmoneystorageinfo: $updatedAux");
-
-                Log::info("Proceso auxmoneystorageinfo tomó $elapsedAuxMoney segundos");
-                Log::info("Insertados: $insertedAux | Actualizados: $updatedAux");
-
                 DB::commit();
                 echo "Datos sincronizados correctamente.";
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 DB::rollBack();
-                Log::error('Error al insertar los datos en las tablas collectinfo y auxmoneystorageinfo', ['exception' => $e]);
+                Log::error('Error al insertar los datos en las tablas collectinfo y auxmoneystorageinfo' . $e->getMessage());
             }
         } catch (Exception $e) {
             Log::error('Error al conectar a la base de datos: ' . $e->getMessage());
@@ -617,3 +511,102 @@ class PerformMoneySynchronizationEveryTime extends Command
         return $datetime; // Retorna el datetime original si es válido
     }
 }
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
