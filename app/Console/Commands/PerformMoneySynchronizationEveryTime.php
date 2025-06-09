@@ -35,22 +35,20 @@ class PerformMoneySynchronizationEveryTime extends Command
      */
     public function handle()
     {
-        Log::info('Entrando a handle');
-
         $local = Local::first();
         if (!$local) {
             Log::error('No se encontró ningún local.');
             return;
         }
 
-        Log::info('Local encontrado: ' . $local->name); // o cualquier campo
+        //Log::info('Local encontrado: ' . $local->name); // o cualquier campo
         $this->connectToTicketServer($local);
     }
 
     protected function connectToTicketServer(Local $local): void
     {
         $connectionName = nuevaConexionLocal('ccm');
-        Log::info($connectionName);
+        //Log::info($connectionName);
 
         try {
             // Purgar la conexión y obtener el PDO
@@ -124,12 +122,12 @@ class PerformMoneySynchronizationEveryTime extends Command
                 DB::commit();
                 $endCollects = microtime(true);
                 $durationCollects = $endCollects - $startCollects;
-                dump("Tiempo en procesar collects: {$durationCollects} segundos");
-                dump("Registros insertados: $insertedCount");
-                dump("Registros actualizados: $updatedCount");
-                Log::info("Proceso de collects tomó $durationCollects segundos para " . count($collects) . " registros");
-                Log::info("Registros insertados: $insertedCount");
-                Log::info("Registros actualizados: $updatedCount");
+                //dump("Tiempo en procesar collects: {$durationCollects} segundos");
+                //dump("Registros insertados: $insertedCount");
+                //dump("Registros actualizados: $updatedCount");
+                //Log::info("Proceso de collects tomó $durationCollects segundos para " . count($collects) . " registros");
+                //Log::info("Registros insertados: $insertedCount");
+                //Log::info("Registros actualizados: $updatedCount");
             } catch (Exception $e) {
                 DB::rollBack();
                 Log::error('Error al insertar los datos en la tabla COLLECTS', ['exception' => $e]);
@@ -196,12 +194,12 @@ class PerformMoneySynchronizationEveryTime extends Command
                 DB::commit();
                 $endCollectDetails = microtime(true);
                 $durationCollectDetails = $endCollectDetails - $startCollectDetails;
-                dump("Tiempo en procesar collectdetails: {$durationCollectDetails} segundos");
-                dump("Registros insertados: $insertedCount");
-                dump("Registros actualizados: $updatedCount");
-                Log::info("Proceso de collectdetails tomó $durationCollectDetails segundos para " . count($collectDetails) . " registros");
-                Log::info("Registros insertados: $insertedCount");
-                Log::info("Registros actualizados: $updatedCount");
+                //dump("Tiempo en procesar collectdetails: {$durationCollectDetails} segundos");
+                //dump("Registros insertados: $insertedCount");
+                //dump("Registros actualizados: $updatedCount");
+                //Log::info("Proceso de collectdetails tomó $durationCollectDetails segundos para " . count($collectDetails) . " registros");
+                //Log::info("Registros insertados: $insertedCount");
+                //Log::info("Registros actualizados: $updatedCount");
             } catch (Exception $e) {
                 DB::rollBack();
                 Log::error('Error al insertar los datos en la tabla collectdetails', ['exception' => $e]);
@@ -363,12 +361,12 @@ class PerformMoneySynchronizationEveryTime extends Command
                 $endTicketsSync = microtime(true);
                 $durationTicketsSync = $endTicketsSync - $startTicketsSync;
 
-                dump("Tiempo en procesar tickets: {$durationTicketsSync} segundos");
-                dump("Tickets actualizados: {$contadorActualizados}");
-                dump("Tickets insertados: {$contadorInsertados}");
+                //dump("Tiempo en procesar tickets: {$durationTicketsSync} segundos");
+                //dump("Tickets actualizados: {$contadorActualizados}");
+                //dump("Tickets insertados: {$contadorInsertados}");
 
-                Log::info("Duración sincronización tickets local {$local->name}: {$durationTicketsSync} segundos");
-                Log::info("Sync tickets para local {$local->name}: Actualizados = {$contadorActualizados}, Insertados = {$contadorInsertados}");
+                //Log::info("Duración sincronización tickets local {$local->name}: {$durationTicketsSync} segundos");
+                //Log::info("Sync tickets para local {$local->name}: Actualizados = {$contadorActualizados}, Insertados = {$contadorInsertados}");
             } catch (\Exception $e) {
                 DB::rollBack();
                 Log::error('Error al insertar/actualizar tickets', ['exception' => $e]);
@@ -471,13 +469,13 @@ class PerformMoneySynchronizationEveryTime extends Command
                 $endLogs = microtime(true);
                 $durationLogs = $endLogs - $startLogs;
 
-                dump("Tiempo en procesar logs: {$durationLogs} segundos");
-                dump("Registros insertados: $insertedCount");
-                dump("Registros actualizados: $updatedCount");
+                //dump("Tiempo en procesar logs: {$durationLogs} segundos");
+                //dump("Registros insertados: $insertedCount");
+                //dump("Registros actualizados: $updatedCount");
 
-                Log::info("Proceso de logs tomó $durationLogs segundos para " . count($logsRemotos) . " registros");
-                Log::info("Registros insertados en logs: $insertedCount");
-                Log::info("Registros actualizados en logs: $updatedCount");
+                //Log::info("Proceso de logs tomó $durationLogs segundos para " . count($logsRemotos) . " registros");
+                //Log::info("Registros insertados en logs: $insertedCount");
+                //Log::info("Registros actualizados en logs: $updatedCount");
             } catch (\Exception $e) {
                 DB::rollBack();
                 Log::error('Error al insertar o actualizar logs', ['exception' => $e]);
@@ -487,6 +485,8 @@ class PerformMoneySynchronizationEveryTime extends Command
             // COLLECTSINFO y AUSMONEYSTORAGEINFO
             DB::beginTransaction();
             try {
+                $remoteMachines = collect($collectinfo)->pluck('Machine')->toArray();
+
                 // ===== COLLECTINFO =====
                 $startCollectInfo = microtime(true);
                 $insertedCollect = 0;
@@ -520,15 +520,28 @@ class PerformMoneySynchronizationEveryTime extends Command
                     }
                 }
 
+                // ===== NUEVO BLOQUE: contar y eliminar obsoletos =====
+                $deletedCollect = DB::table('collectinfo')
+                    ->where('local_id', $local->id)
+                    ->whereNotIn('Machine', $remoteMachines)
+                    ->count();
+
+                DB::table('collectinfo')
+                    ->where('local_id', $local->id)
+                    ->whereNotIn('Machine', $remoteMachines)
+                    ->delete();
+                // ====================================================
+
                 $endCollectInfo = microtime(true);
                 $elapsedCollectInfo = $endCollectInfo - $startCollectInfo;
 
-                dump("Tiempo en procesar collectinfo: {$elapsedCollectInfo} segundos");
-                dump("Registros insertados en collectinfo: $insertedCollect");
-                dump("Registros actualizados en collectinfo: $updatedCollect");
+                //dump("Tiempo en procesar collectinfo: {$elapsedCollectInfo} segundos");
+                //dump("Registros insertados en collectinfo: $insertedCollect");
+                //dump("Registros actualizados en collectinfo: $updatedCollect");
+                //dump("Registros eliminados en collectinfo: $deletedCollect"); // NUEVO
 
-                Log::info("Proceso collectinfo tomó $elapsedCollectInfo segundos");
-                Log::info("Insertados: $insertedCollect | Actualizados: $updatedCollect");
+                //Log::info("Proceso collectinfo tomó $elapsedCollectInfo segundos");
+                //Log::info("Insertados: $insertedCollect | Actualizados: $updatedCollect | Eliminados: $deletedCollect"); // NUEVO
 
                 // ===== AUXMONEYSTORAGEINFO =====
                 $startAuxMoney = microtime(true);
@@ -563,15 +576,30 @@ class PerformMoneySynchronizationEveryTime extends Command
                     }
                 }
 
+                // ===== NUEVO BLOQUE: contar y eliminar obsoletos =====
+                $remoteAuxMachines = collect($auxmoneystorageinfo)->pluck('Machine')->toArray();
+
+                $deletedAux = DB::table('auxmoneystorageinfo')
+                    ->where('local_id', $local->id)
+                    ->whereNotIn('Machine', $remoteAuxMachines)
+                    ->count();
+
+                DB::table('auxmoneystorageinfo')
+                    ->where('local_id', $local->id)
+                    ->whereNotIn('Machine', $remoteAuxMachines)
+                    ->delete();
+                // ====================================================
+
                 $endAuxMoney = microtime(true);
                 $elapsedAuxMoney = $endAuxMoney - $startAuxMoney;
 
-                dump("Tiempo en procesar auxmoneystorageinfo: {$elapsedAuxMoney} segundos");
-                dump("Registros insertados en auxmoneystorageinfo: $insertedAux");
-                dump("Registros actualizados en auxmoneystorageinfo: $updatedAux");
+                //dump("Tiempo en procesar auxmoneystorageinfo: {$elapsedAuxMoney} segundos");
+                //dump("Registros insertados en auxmoneystorageinfo: $insertedAux");
+                //dump("Registros actualizados en auxmoneystorageinfo: $updatedAux");
+                //dump("Registros eliminados en auxmoneystorageinfo: $deletedAux"); // NUEVO
 
-                Log::info("Proceso auxmoneystorageinfo tomó $elapsedAuxMoney segundos");
-                Log::info("Insertados: $insertedAux | Actualizados: $updatedAux");
+                //Log::info("Proceso auxmoneystorageinfo tomó $elapsedAuxMoney segundos");
+                //Log::info("Insertados: $insertedAux | Actualizados: $updatedAux | Eliminados: $deletedAux"); // NUEVO
 
                 DB::commit();
                 echo "Datos sincronizados correctamente.";
